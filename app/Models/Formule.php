@@ -23,7 +23,7 @@ class Formule extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function option(): HasMany
+    public function options(): HasMany
     {
         return $this->hasMany(Option::class);
     }

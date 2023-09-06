@@ -13,7 +13,7 @@ class CotisationsPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class CotisationsPolicy
      */
     public function view(User $user, Cotisations $cotisations): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class CotisationsPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class CotisationsPolicy
      */
     public function update(User $user, Cotisations $cotisations): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -45,7 +45,7 @@ class CotisationsPolicy
      */
     public function delete(User $user, Cotisations $cotisations): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -53,7 +53,7 @@ class CotisationsPolicy
      */
     public function restore(User $user, Cotisations $cotisations): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -61,6 +61,6 @@ class CotisationsPolicy
      */
     public function forceDelete(User $user, Cotisations $cotisations): bool
     {
-        //
+        return true;
     }
 }

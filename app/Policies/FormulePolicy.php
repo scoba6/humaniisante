@@ -53,7 +53,7 @@ class FormulePolicy
      */
     public function restore(User $user, Formule $formule): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -61,6 +61,6 @@ class FormulePolicy
      */
     public function forceDelete(User $user, Formule $formule): bool
     {
-        //
+        return true;
     }
 }

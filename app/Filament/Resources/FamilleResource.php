@@ -21,7 +21,7 @@ class FamilleResource extends Resource
 
     protected ?string $maxContentWidth = 'full';
     protected static ?string $navigationGroup = 'ADHESIONS';
-    protected static ?string $navigationLabel = 'Familles';
+    protected static ?string $navigationLabel = 'Groupements/Familles';
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'nomfam';
@@ -36,7 +36,7 @@ class FamilleResource extends Resource
                 Forms\Components\TextInput::make('payfam')->required()->label('PAYS'),
                 Forms\Components\Textarea::make('adrfam')->required()->label('ADRESSE (TEL - MAIL)')->columnSpan('full'),
                 Select::make('commercial_id')->label('COMMERCIAL')->required()->options(Commercial::all()->pluck('nomcom', 'id'))->columnSpan('full')
-                    ->relationship('commercial', 'id')
+                    //->relationship('commercial', 'id')
                     ->required()
                     ->searchable(),
             ]);
@@ -57,8 +57,8 @@ class FamilleResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()->label(''),
+                Tables\Actions\DeleteAction::make()->label(''),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
             ])

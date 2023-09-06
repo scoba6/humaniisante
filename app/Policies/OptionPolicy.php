@@ -13,7 +13,7 @@ class OptionPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class OptionPolicy
      */
     public function view(User $user, Option $option): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class OptionPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class OptionPolicy
      */
     public function update(User $user, Option $option): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -45,7 +45,7 @@ class OptionPolicy
      */
     public function delete(User $user, Option $option): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -53,7 +53,7 @@ class OptionPolicy
      */
     public function restore(User $user, Option $option): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -61,6 +61,6 @@ class OptionPolicy
      */
     public function forceDelete(User $user, Option $option): bool
     {
-        //
+        return true;
     }
 }

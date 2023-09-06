@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('humpargens', function (Blueprint $table) {
+        Schema::create('humpargen', function (Blueprint $table) {
             $table->id();
             $table->string('CLEPAR', 100)->nullable(false)->default('text'); // Clé du parmètre
             $table->string('LIBPAR', 100)->nullable()->default('text'); // Libelllé du paramètre
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('humpargens');
+        Schema::dropIfExists('humpargen');
     }
 };

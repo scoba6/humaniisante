@@ -53,7 +53,7 @@ class MembrePolicy
      */
     public function restore(User $user, Membre $membre): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -61,6 +61,6 @@ class MembrePolicy
      */
     public function forceDelete(User $user, Membre $membre): bool
     {
-        //
+        return true;
     }
 }

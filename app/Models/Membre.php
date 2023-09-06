@@ -7,6 +7,8 @@ use Illuminate\Support\Str;
 use Wildside\Userstamps\Userstamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Membre extends Model
@@ -19,7 +21,7 @@ class Membre extends Model
         'famille_id',
         'qualite_id',
         'formule_id',
-        'sexmem_id',
+        'groupe_id',
         'option_id',
         'nommem',
         'datnai',
@@ -59,5 +61,65 @@ class Membre extends Model
             }
             $model->save();
         });
+    }
+
+    /**
+     * Get the famille that owns the Membre
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function famille(): BelongsTo
+    {
+        return $this->belongsTo(Famille::class);
+    }
+
+     /**
+     * Get the qualite that owns the Membre
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function qualite(): BelongsTo
+    {
+        return $this->belongsTo(Qualite::class);
+    }
+
+    /**
+     * Get the formule that owns the Membre
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function formule(): BelongsTo
+    {
+        return $this->belongsTo(Formule::class);
+    }
+
+    /**
+     * Get the Option that owns the Membre
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function Option(): BelongsTo
+    {
+        return $this->belongsTo(Option::class, 'option_id', 'id');
+    }
+
+    /**
+     * Get all of the cotisations for the Membre
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cotisations(): HasMany
+    {
+        return $this->hasMany(Cotisations::class);
+    }
+
+    /**
+     * Get the groupe that owns the Membre
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function groupe(): BelongsTo
+    {
+        return $this->belongsTo(Groupe::class, 'groupe_id','id');
     }
 }

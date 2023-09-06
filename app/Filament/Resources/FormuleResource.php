@@ -2,16 +2,21 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\FormuleResource\Pages;
-use App\Filament\Resources\FormuleResource\RelationManagers;
-use App\Models\Formule;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Formule;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\FormuleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\FormuleResource\RelationManagers;
 
 class FormuleResource extends Resource
 {
@@ -27,7 +32,9 @@ class FormuleResource extends Resource
     {
         return $form
             ->schema([
-                //
+                TextInput::make('libfrm')->required()->label('FORMULE')->columnSpan('full'),
+                Textarea::make('comfrm')->required()->label('DETAILS FORMULE')->columnSpan('full'),
+                Toggle::make('ambfrm')->required()->label('AMBULATOIRE')
             ]);
     }
 
@@ -35,13 +42,19 @@ class FormuleResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('libfrm')->sortable()->label('FORMULE'),
+                TextColumn::make('comfrm')->sortable()->label('DETAILS'),
+                IconColumn::make('ambfrm')->label('AMBULATOIRE')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-mark')
+                
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->label(''),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -58,7 +71,7 @@ class FormuleResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\OptionsRelationManager::class,
         ];
     }
     

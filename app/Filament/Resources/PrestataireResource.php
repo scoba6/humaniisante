@@ -2,16 +2,19 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PrestataireResource\Pages;
-use App\Filament\Resources\PrestataireResource\RelationManagers;
-use App\Models\Prestataire;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Prestataire;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\PrestataireResource\Pages;
+use App\Filament\Resources\PrestataireResource\RelationManagers;
 
 class PrestataireResource extends Resource
 {
@@ -27,7 +30,16 @@ class PrestataireResource extends Resource
     {
         return $form
             ->schema([
-                //
+                TextInput::make('rsopre')->required()->label('RAISON SOCIALE')->columnSpan('full'),
+                Textarea::make('adrpre')->required()->label('ADRESSE')->columnSpan('full'),
+                TextInput::make('telpre')->required()->label('TELEPHONE'),
+                TextInput::make('maipre')->required()->label('E-MAIL'),
+                Radio::make('natpre')->label('TYPE DE PRESTATIONS')
+                    ->options([
+                        '1' => 'PUBLIQUE',
+                        '2' => 'PRIVE'
+                    ])
+                    ->inline()
             ]);
     }
 
@@ -35,14 +47,16 @@ class PrestataireResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('rsopre')->label('RAISON SOCIALE')->sortable(),
+                Tables\Columns\TextColumn::make('adrpre')->label('ADRESSE')->sortable(),
+                Tables\Columns\TextColumn::make('telpre')->label('TELEPHONE')->sortable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()->label(''),
+                Tables\Actions\DeleteAction::make()->label(''),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
             ])

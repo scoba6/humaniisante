@@ -11,7 +11,7 @@ class Qualite extends Model
 {
     use HasFactory, Userstamps, SoftDeletes;
 
-    protected $table = 'sinistres';
+    protected $table = 'qualites';
 
     protected $fillable = [
         'libqlt',

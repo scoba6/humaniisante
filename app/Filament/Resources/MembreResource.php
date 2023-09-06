@@ -14,16 +14,28 @@ use App\Models\Qualite;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
+use Filament\Tables\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\CreateAction;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\RestoreBulkAction;
 use App\Filament\Resources\MembreResource\Pages;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\MembreResource\Pages\EditMembre;
 use App\Filament\Resources\MembreResource\RelationManagers;
+use App\Filament\Resources\MembreResource\Pages\ListMembres;
+use App\Filament\Resources\MembreResource\Pages\CreateMembre;
 
 class MembreResource extends Resource
 {
@@ -35,6 +47,7 @@ class MembreResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user';
     protected static ?int $navigationSort = 2;
 
+
     public static function form(Form $form): Form
     {
         return $form
@@ -42,8 +55,11 @@ class MembreResource extends Resource
                 Select::make('famille_id')->label('FAMILLE')->required()->options(Famille::all()->pluck('nomfam', 'id'))->columnSpan('full')->searchable(),
                 TextInput::make('nommem')->required()->label('NOM PRENOM'), //->columnSpan('full'),
                 Select::make('qualite_id')->label('QUALITE')->required()->options(Qualite::all()->pluck('libqlt', 'id')),
-                DateTimePicker::make('datnai')->label('DATE DE NAISSANCE')->displayFormat('d/m/Y')->maxDate(now())->required()
+                DatePicker::make('datnai')->label('DATE DE NAISSANCE')->displayFormat('d/m/Y')->maxDate(now())->required()
                     ->reactive()
+                    ->displayFormat('d/m/Y')
+                    ->closeOnDateSelection()
+                    ->native(false)
                     ->required()
                     ->afterStateUpdated(function (\Filament\Forms\Set $set, $get) {
                         $dateOfBirth = $get('datnai');
@@ -58,7 +74,7 @@ class MembreResource extends Resource
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(fn (callable $set) => $set('option_id', null)),
-                Select::make('sexmem_id')
+                Select::make('groupe_id')
                     ->label('CATEGORIE')
                     ->options(Groupe::all()->pluck('libsxg', 'id'))
                     ->required()
@@ -72,7 +88,7 @@ class MembreResource extends Resource
                     ->required()
                     ->options(function (\Filament\Forms\Get $get) {
                         $frm = Formule::find($get('formule_id'))?->id; //Formule
-                        $grp = Groupe::find($get('sexmem_id'))?->id; // Categorie
+                        $grp = Groupe::find($get('groupe_id'))?->id; // Categorie
                         $age = $get('agemem');
 
                         if (!$frm) {
@@ -87,7 +103,11 @@ class MembreResource extends Resource
                     }),
 
                 TextInput::make('matmem')->label('MATRICULE')->disabled(),
-                DateTimePicker::make('valfrm')->label('VALIDITE FORMULE')->displayFormat('d/m/Y')->maxDate(now())->required()->columnSpan('full'),
+                DatePicker::make('valfrm')->label('VALIDITE FORMULE')->columnSpan('full')
+                    ->required()
+                    ->displayFormat('d/m/Y')
+                    ->closeOnDateSelection()
+                    ->native(false),
                 Fieldset::make('OPTIONS')
                     ->schema([
                         Toggle::make('framem')->inline()->onColor('success')->offColor('danger')->label('FRAIS ADHESION'),
@@ -96,7 +116,6 @@ class MembreResource extends Resource
                     ])
                     ->columns(3),
                 Textarea::make('commem')->label('COMMENTAIRES')->columnSpan('full'),
-                
             ]);
     }
 
@@ -117,10 +136,13 @@ class MembreResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
+                Action::make('QR CODE')
+                    ->url(fn (Membre $record) => static::getUrl('qrcode', [$record->id]))
+                    ->openUrlInNewTab()
+                    ->icon('heroicon-m-qr-code')
+                    ->iconButton(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ForceDeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -133,14 +155,24 @@ class MembreResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\CotisationsRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageMembres::route('/'),
+            'index' => Pages\ListMembres::route('/'),
+            'create' => Pages\CreateMembre::route('/create'),
+            'edit' => Pages\EditMembre::route('/{record}/edit'),
+            'qrcode' => Pages\ViewQrCode::route('/{record}/qrcode'), // Page d'affichage du QR CODE
         ];
-    }    
-    
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
