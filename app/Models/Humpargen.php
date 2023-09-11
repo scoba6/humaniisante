@@ -12,4 +12,9 @@ class Humpargen extends Model
     use HasFactory, Userstamps, SoftDeletes;
 
     protected $table = 'humpargen';
+
+    protected $fillable = [
+        'libpar'
+
+    ];
 }

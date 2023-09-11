@@ -49,6 +49,6 @@ class Option extends Model
       */
      public function groupe(): BelongsTo
      {
-         return $this->belongsTo(Groupe::class);
+         return $this->belongsTo(Groupe::class, 'sexgrp_id', 'id');
      }
 }

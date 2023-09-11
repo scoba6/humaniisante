@@ -5,10 +5,13 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Formule;
+use App\Models\Territo;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -32,9 +35,38 @@ class FormuleResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('libfrm')->required()->label('FORMULE')->columnSpan('full'),
+                TextInput::make('libfrm')->required()->label('FORMULE'),
+                Select::make('territo_id')->label('TERRITORIALITE')->options(Territo::all()->pluck('libter', 'id'))
+                    ->required()
+                    ->searchable(),
+                Toggle::make('ambfrm')->required()->label('AMBULATOIRE'),
+                Fieldset::make('TAUX DE PRISE EN CHARGE')
+                    ->schema([
+                        TextInput::make('tauamb')->required()->label('AMBULATOIRE'),
+                        TextInput::make('tauhos')->required()->label('HOSPITALISATION'),
+                    ])
+                    ->columns(2),
+                Fieldset::make('LIMITES ET PLAFONDS ANNNUELS')
+                ->schema([
+                    TextInput::make('limacc')->required()->label('ACCOUCHEMENTS')
+                        ->numeric(),
+                    TextInput::make('limhos')->required()->label('HOSPITALISATIONS')
+                        ->numeric(),
+                    TextInput::make('limbio')->required()->label('EXAMEN DE BIOLOGIE')
+                        ->numeric(),
+                    TextInput::make('limrad')->required()->label('EXAMEN DE RADIOLOGIE')
+                        ->numeric(),
+                    TextInput::make('limchr')->required()->label('CHAMBRES')
+                        ->numeric(),
+                    TextInput::make('limpla')->required()->label('PLANFOND GLOBAL')
+                        ->numeric(),
+                    TextInput::make('limact')->required()->label('AUTRES ACTES')
+                        ->numeric()
+                        ,
+                ])
+                    ->columns(2),
                 Textarea::make('comfrm')->required()->label('DETAILS FORMULE')->columnSpan('full'),
-                Toggle::make('ambfrm')->required()->label('AMBULATOIRE')
+                
             ]);
     }
 
@@ -43,6 +75,9 @@ class FormuleResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('libfrm')->sortable()->label('FORMULE'),
+                TextColumn::make('tauamb')->sortable()->label('AMB'),
+                TextColumn::make('tauhos')->sortable()->label('HOS'),
+                TextColumn::make('limpla')->sortable()->label('PLANFOND/AN'),
                 TextColumn::make('comfrm')->sortable()->label('DETAILS'),
                 IconColumn::make('ambfrm')->label('AMBULATOIRE')
                     ->boolean()

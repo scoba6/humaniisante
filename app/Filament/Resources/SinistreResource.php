@@ -9,15 +9,20 @@ use App\Models\Famille;
 use App\Models\Sinistre;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Prestataire;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
 use App\Filament\Resources\SinistreResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SinistreResource\RelationManagers;
+use App\Models\Acte;
+use App\Models\Humpargen;
 
 class SinistreResource extends Resource
 {
@@ -43,7 +48,21 @@ class SinistreResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('id')->sortable()->label('N° SIN'),
+                Tables\Columns\TextColumn::make('prestataire.rsopre')->sortable()->label('PRESTATAIRE'),
+                Tables\Columns\TextColumn::make('status')->sortable()->label('STATUT')
+                    ->badge()
+                    ->colors([
+                        'danger' => 1,
+                        'warning' => '2',
+                        'success' => fn ($state) => in_array($state, ['3', '4']),
+                    ]),
+                Tables\Columns\TextColumn::make('famille.nomfam')->sortable()->label('FAMILLE'),
+                Tables\Columns\TextColumn::make('membre.nommem')->sortable()->label('MEMBRE'),
+                Tables\Columns\TextColumn::make('mnttmo')->sortable()->label('TM'),
+                Tables\Columns\TextColumn::make('mntass')->sortable()->label('P. HUMANIIS'),
+
+
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -91,10 +110,36 @@ class SinistreResource extends Resource
     {
         if ($section === 'prestation') {
             return [
-                DatePicker::make('datsai')->label('DATE DE SAISIE')->displayFormat('d/m/Y')->maxDate(now())->required(),
-                DatePicker::make('datmal')->label('DATE MALADIE')->displayFormat('d/m/Y')->maxDate(now())->required(),
-                TextInput::make('natact')->label('NATURE ACTE'),         
-                Textarea::make('nataff')->label('NATURE AFFECTION'),    
+
+                Grid::make()
+                ->schema([
+                    Select::make('prestataire_id')->label('PRESTATAIRE')->options(Prestataire::all()->pluck('rsopre', 'id'))->columnSpan('full')
+                        ->required()
+                        ->searchable(),
+                    DatePicker::make('datsai')->label('DATE DE SAISIE')
+                        ->displayFormat('d/m/Y')
+                        ->maxDate(now())
+                        ->native(false)
+                        ->required(),
+                    DatePicker::make('datmal')->label('DATE MALADIE')
+                        ->displayFormat('d/m/Y')
+                        ->maxDate(now())
+                        ->native(false)
+                        ->required(),
+                    
+                    Select::make('acte_id')->label('NATURE ACTE')->options(Acte::all()->pluck('libact', 'id'))
+                        ->required()
+                        ->searchable(), 
+                    Select::make('nataff_id')->label('NATURE AFFECTION')->options(Humpargen::all()->pluck('libpar', 'id'))
+                        ->required()
+                        ->searchable(), 
+                    TextInput::make('mnttmo')->label('TM')
+                        ->required(),
+                    TextInput::make('mntass')->label('PART HUMANIIS')
+                        ->required(),
+        
+                ]),
+                  
             ];
         }
 

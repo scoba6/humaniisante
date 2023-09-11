@@ -141,7 +141,7 @@ class MembreResource extends Resource
                     ->openUrlInNewTab()
                     ->icon('heroicon-m-qr-code')
                     ->iconButton(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->label(''),
 
             ])
             ->bulkActions([

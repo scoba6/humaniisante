@@ -16,4 +16,14 @@ class ListSinistres extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    public function getTabs(): array
+    {
+        return [
+            null => ListRecords\Tab::make('Tous'),
+            'A vérifier' => ListRecords\Tab::make()->query(fn ($query) => $query->where('status', '1')),
+            'Vérifiés' => ListRecords\Tab::make()->query(fn ($query) => $query->where('status', '2')),
+            'Réglés' => ListRecords\Tab::make()->query(fn ($query) => $query->where('status', '3')),
+        ];
+    }
 }
