@@ -18,6 +18,9 @@ class Sinistre extends Model
         'prestataire_id',
         'famille_id',
         'membre_id',
+        'acte_id',
+        'nataff_id',
+        'numsin',
         'datsai',
         'datmal',
         'natact', //Nature Acte
@@ -26,6 +29,10 @@ class Sinistre extends Model
         'mnbase',
         'mnttmo', // Ticket moderateur
         'mntass', // Part Humanniis
+    ];
+
+    protected $casts = [
+        'attachments' => 'array',
     ];
 
     /**
@@ -58,4 +65,16 @@ class Sinistre extends Model
     {
         return $this->belongsTo(Membre::class);
     }
+
+    /**
+     * Get the humpagen that owns the Sinistre
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function humpagen(): BelongsTo
+    {
+        return $this->belongsTo(Humpargen::class, 'nataff_id', 'id');
+    }
+
+
 }
