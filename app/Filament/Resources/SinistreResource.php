@@ -37,6 +37,7 @@ class SinistreResource extends Resource
     protected static ?string $modelLabel = 'Saisie';
     protected static ?int $navigationSort = 1;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $recordTitleAttribute = 'numsin';
     
 
     public static function form(Form $form): Form
@@ -82,7 +83,7 @@ class SinistreResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')->sortable()->label('N° SIN'),
+                Tables\Columns\TextColumn::make('numsin')->sortable()->label('N° SIN'),
                 Tables\Columns\TextColumn::make('prestataire.rsopre')->sortable()->label('PRESTATAIRE'),
                 Tables\Columns\TextColumn::make('status')->sortable()->label('STATUT')
                     ->badge()
@@ -95,7 +96,7 @@ class SinistreResource extends Resource
                 Tables\Columns\TextColumn::make('membre.nommem')->sortable()->label('MEMBRE'),
                 Tables\Columns\TextColumn::make('mnttmo')->sortable()->label('TM'),
                 Tables\Columns\TextColumn::make('mntass')->sortable()->label('P. HUMANIIS'),
-                Tables\Columns\TextColumn::make('attachments')->sortable()->label('FICHIERS'),
+                //Tables\Columns\TextColumn::make('attachements')->sortable()->label('FICHIERS'),
 
 
             ])
@@ -162,7 +163,7 @@ class SinistreResource extends Resource
                         ->native(false)
                         ->required(),
                     
-                    Select::make('acte_id')->label('NATURE ACTE')->options(Acte::all()->pluck('libact', 'id'))
+                    Select::make('acte_id')->label('NATURE ACTE')->options(Acte::OrderBy('libact')->pluck('libact', 'id'))
                         ->required()
                         ->searchable(), 
                     Select::make('nataff_id')->label('NATURE AFFECTION')->options(Humpargen::query()->whereIn('id', [4,5])->pluck('LIBPAR', 'id'))
@@ -172,19 +173,17 @@ class SinistreResource extends Resource
                         ->required(),
                     TextInput::make('mntass')->label('PART HUMANIIS')
                         ->required(),
-                    FileUpload::make('attachment')->label('FICHIER JOINT')->columnSpan('full')
+                    FileUpload::make('attachements')->label('FICHIER JOINT')->columnSpan('full')
                         ->directory('SINISTRES')
-                        ->acceptedFileTypes(['application/pdf'])
                         ->getUploadedFileNameForStorageUsing(
                             fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
-                                ->prepend('SIN-'),
+                                ->prepend('SIN_'),
                         )
+                        ->acceptedFileTypes(['application/pdf'])
+                        ->previewable(true)
                         ->openable()
-                        ->multiple()
                         ->downloadable()
-                        ->reorderable()
-                        ->appendFiles()
-        
+                        ->visibility('public')
                 ]),
                   
             ];

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
 use Wildside\Userstamps\Userstamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -29,12 +31,34 @@ class Sinistre extends Model
         'mnbase',
         'mnttmo', // Ticket moderateur
         'mntass', // Part Humanniis
+        'attachements'
     ];
 
-    protected $casts = [
-        'attachments' => 'array',
-    ];
+    public static function boot(): void
+    {
+        parent::boot();  
+        static::created(function (Model $model) {
+            // Ce code s'exécute quand un sinistre est créé
+            // Numéro de sinistre
+            $sh= 'SH'; // Identifaction du site
+            //Generation du N° de FACTURE
+            switch (Str::length($model->id)) {
+                case 1:
+                    $model->numsin = ($sh .Carbon::now()->format('y').Carbon::now()->format('m').'00'.$model->id);
+                    break;
+                case 2:
+                    $model->numsin = ($sh .Carbon::now()->format('y').Carbon::now()->format('m').'0'.$model->id);
+                    break;
 
+                default:
+                    $model->numsin = ($sh.Carbon::now()->format('y').Carbon::now()->format('m').$model->id);
+                    break;
+            }
+            $model->save(); 
+        });
+    }
+
+ 
     /**
      * Get the prestaire that owns the Sinistre
      *

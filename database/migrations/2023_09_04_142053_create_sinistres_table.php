@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('membre_id')->constrained('familles_membres');
             $table->foreignId('acte_id')->constrained('actes');
             $table->foreignId('nataff_id')->constrained('humpargen');
-            $table->integer('numsin')->unsigned()->nullable(false)->default(12);
+            $table->string('numsin', 100)->nullable()->default('SH');
             $table->dateTime('datsai')->nullable()->default(now());
             $table->dateTime('datmal')->nullable()->default(now());
             $table->string('natact', 100)->nullable()->default('text');
@@ -29,6 +29,7 @@ return new class extends Migration
             $table->integer('mntass')->unsigned()->nullable()->default(12); //Part humaniis
             $table->integer('status')->unsigned()->nullable(false)->default(1);
             $table->string('attachements', 100)->nullable()->default('text');
+            $table->string('testdbal', 100)->nullable()->default('text');
             $table->timestamps();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
