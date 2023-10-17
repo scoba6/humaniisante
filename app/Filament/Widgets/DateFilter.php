@@ -8,6 +8,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Illuminate\Support\Carbon;
 
 class DateFilter extends Widget implements HasForms
 {
@@ -35,7 +36,7 @@ class DateFilter extends Widget implements HasForms
                             ->closeOnDateSelection()
                             ->native(false)
                             ->live() 
-                            ->afterStateUpdated(fn (?string $state) => $this->dispatch('updateFromDate', from: $state)), 
+                            ->afterStateUpdated(fn (?string $state) => $this->dispatch('updateFromDate', from: $state)),
                         DatePicker::make('AU')
                             ->maxDate(now())
                             ->displayFormat('d/m/Y')

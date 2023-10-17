@@ -32,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
                 NavigationGroup::make()
                     ->label('PARAMETRES')
                     ->collapsed(true),
+                NavigationGroup::make()
+                    ->label('ADMINISTRATION')
+                    ->collapsed(true),
 
             ]);
         });

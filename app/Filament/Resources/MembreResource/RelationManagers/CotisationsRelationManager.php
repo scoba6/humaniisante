@@ -63,23 +63,29 @@ class CotisationsRelationManager extends RelationManager
                         } else {
                             $adh = 5000;
                         }
+                        
+                        //Accessoires
+                        $acc = 10000; 
 
-                        $ttc = $coti + $tps + $css + $adh;
+                        $ttc = $coti + $tps + $css + $adh + $acc;
+
                         $set('mntcot', $coti);
                         $set('mnttps', round($tps));
                         $set('mntcss', $css);
                         $set('mntadh', $adh);
+                        $set('mntacc', $acc);
                         $set('mntttc', round($ttc));
                     }),
 
                 Fieldset::make('DETAILS DE LA COTISATION')
                     ->schema([
-                        TextInput::make('mntcot')->disabled()->label('MOTANT HT'),
-                        TextInput::make('mnttps')->disabled()->label('TPS'),
-                        TextInput::make('mntcss')->disabled()->label('CSS'),
-                        TextInput::make('mntadh')->disabled()->label('ADH'),
-                        TextInput::make('mntttc')->disabled()->label('MONTANT TTC')->columnSpanFull()
-                    ])->columns(4),
+                        TextInput::make('mntcot')->readOnly()->label('MOTANT HT'),
+                        TextInput::make('mnttps')->readOnly()->label('TPS'),
+                        TextInput::make('mntcss')->readOnly()->label('CSS'),
+                        TextInput::make('mntadh')->readOnly()->label('ADH'),
+                        TextInput::make('mntacc')->readOnly()->label('ACC'),
+                        TextInput::make('mntttc')->readOnly()->label('MONTANT TTC')->columnSpanFull()
+                    ])->columns(5),
 
                 Textarea::make('detcot')->label('COMMENTAIRES')->columnSpan('full'),
             ]);
@@ -90,10 +96,14 @@ class CotisationsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('mntcot')
             ->columns([
-                Tables\Columns\TextColumn::make('mntcot'),
+                Tables\Columns\TextColumn::make('mntcot')->label('MNT COT')->money('XAF'),
+                Tables\Columns\TextColumn::make('mnttps')->label('MNT TPS')->money('XAF'),
+                Tables\Columns\TextColumn::make('mntcss')->label('MNT CSS')->money('XAF'),
+                Tables\Columns\TextColumn::make('mntadh')->label('MNT ADH')->money('XAF'),
+                Tables\Columns\TextColumn::make('mntacc')->label('MNT ACC')->money('XAF'),
+                Tables\Columns\TextColumn::make('mntttc')->label('MNT TTC')->money('XAF'),
                 Tables\Columns\TextColumn::make('datcot')->sortable()->label('DATE')->dateTime('d/m/Y'),
                 Tables\Columns\TextColumn::make('datval')->sortable()->label('VALIDITE')->dateTime('d/m/Y'),
-                Tables\Columns\TextColumn::make('mntttc')->label('MONTANT')->money('XAF'),
                 Tables\Columns\TextColumn::make('detcot')->label('OBSERVATIONS'),
             ])
             ->filters([

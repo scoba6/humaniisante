@@ -15,12 +15,13 @@ class Cotisations extends Model
     protected $table = 'familles_membres_cotisations';
 
     protected $fillable = [
+        'membre_id',
         'mntcot',
         'mnttps',
         'mntcss',
         'mntadh',
+        'mntacc',
         'mntttc',
-        'membre_id',
         'datcot',
         'datval',
     ];

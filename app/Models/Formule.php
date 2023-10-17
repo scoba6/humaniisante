@@ -16,7 +16,16 @@ class Formule extends Model
     protected $fillable = [
         'libfrm',
         'comfrm',
-        'ambfrm'
+        'ambfrm',
+        'tauamb',
+        'tauhos',
+        'limacc',
+        'limhos',
+        'limbio',
+        'limrad',
+        'limchr',
+        'limpla',
+        'limact',
     ];
 
     /**
