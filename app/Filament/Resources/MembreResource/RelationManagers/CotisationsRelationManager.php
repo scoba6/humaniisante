@@ -96,12 +96,36 @@ class CotisationsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('mntcot')
             ->columns([
-                Tables\Columns\TextColumn::make('mntcot')->label('MNT COT')->money('XAF'),
-                Tables\Columns\TextColumn::make('mnttps')->label('MNT TPS')->money('XAF'),
-                Tables\Columns\TextColumn::make('mntcss')->label('MNT CSS')->money('XAF'),
-                Tables\Columns\TextColumn::make('mntadh')->label('MNT ADH')->money('XAF'),
-                Tables\Columns\TextColumn::make('mntacc')->label('MNT ACC')->money('XAF'),
-                Tables\Columns\TextColumn::make('mntttc')->label('MNT TTC')->money('XAF'),
+                Tables\Columns\TextColumn::make('mntcot')->label('MNT COT')->money('XAF')
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('XAF'),
+                    ]),
+                Tables\Columns\TextColumn::make('mnttps')->label('MNT TPS')->money('XAF')
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('XAF'),
+                    ]),
+                Tables\Columns\TextColumn::make('mntcss')->label('MNT CSS')->money('XAF')
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('XAF'),
+                    ]),
+                Tables\Columns\TextColumn::make('mntadh')->label('MNT ADH')->money('XAF')
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('XAF'),
+                    ]),
+                Tables\Columns\TextColumn::make('mntacc')->label('MNT ACC')->money('XAF')
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('XAF'),
+                    ]),
+                Tables\Columns\TextColumn::make('mntttc')->label('MNT TTC')->money('XAF')
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('XAF'),
+                    ]),
                 Tables\Columns\TextColumn::make('datcot')->sortable()->label('DATE')->dateTime('d/m/Y'),
                 Tables\Columns\TextColumn::make('datval')->sortable()->label('VALIDITE')->dateTime('d/m/Y'),
                 Tables\Columns\TextColumn::make('detcot')->label('OBSERVATIONS'),

@@ -122,4 +122,14 @@ class Membre extends Model
     {
         return $this->belongsTo(Groupe::class, 'groupe_id','id');
     }
+
+    /**
+     * Get all of the sinistre for the Membre
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function sinistres(): HasMany
+    {
+        return $this->hasMany(Sinistre::class);
+    }
 }

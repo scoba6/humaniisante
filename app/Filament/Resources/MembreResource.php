@@ -45,6 +45,7 @@ class MembreResource extends Resource
     protected static ?string $navigationGroup = 'ADHESIONS';
     protected static ?string $navigationLabel = 'Ayant droits';
     protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $recordTitleAttribute = 'matmem';
     protected static ?int $navigationSort = 2;
 
 
@@ -160,6 +161,7 @@ class MembreResource extends Resource
     {
         return [
             RelationManagers\CotisationsRelationManager::class,
+            RelationManagers\SinistresRelationManager::class,
         ];
     }
 
@@ -180,4 +182,6 @@ class MembreResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+
+    
 }
