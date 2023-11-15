@@ -22,6 +22,7 @@ class Cotisations extends Model
         'mntadh',
         'mntacc',
         'mntttc',
+        'mntmen',
         'datcot',
         'datval',
     ];

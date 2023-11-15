@@ -35,26 +35,35 @@ class CotisationsRelationManager extends RelationManager
                         $mem = $livewire->ownerRecord->id; //Membre
                         $opt = $livewire->ownerRecord->option_id; //Option
                         $coti = Option::find($opt)?->mntxaf; //Montant de la coti
+                        $coti_an = $coti * 12;
                         $fra = Humpargen::find(1)->tauval; //Montant des frais d'adhésion
                         //dd($fra);
 
                         $rht_opt =  Membre::find($mem)?->optmem; //Rachat optique
                         if ($rht_opt) {
                             $coti_opt = Option::find($opt)?->mntopx; //Montant du rachat optique
-                            $coti = $coti + $coti_opt; //Cotisation de l'option + le rachat optique
+
+                            //Cotisation de l'option + le rachat optique à l'année
+                            //$coti = $coti + $coti_opt; 
+                            $coti_an = $coti_an + ($coti_opt * 12);
+                            //dd($coti_an);
                         }
 
                         $rht_dnt =  Membre::find($mem)?->denmem; //Rachat dentisterie
                         if ($rht_dnt) {
                             $coti_dnt = Option::find($opt)?->mntdnx; //Montant du rachat de la dentisterie
-                            $coti = $coti + $coti_dnt; //Cotisation de l'option + le rachat optique
+
+                            //Cotisation de l'option + le rachat optique à l'année
+                            //$coti = $coti + $coti_dnt; 
+                            $coti_an = $coti_an + ($coti_dnt * 12);
+                            //dd($coti_an);
                         }
 
-                        //TPS
-                        $tps = round($coti * 9.5) / 100;
-
                         //CSS
-                        $css = round($coti * 1) / 100;
+                        $css = round($coti_an * 1) / 100;
+
+                        //TPS
+                        $tps = round($coti_an * 9.5) / 100;
 
 
                         $frs_adh = Membre::find($mem)?->framem; //Frais
@@ -63,18 +72,23 @@ class CotisationsRelationManager extends RelationManager
                         } else {
                             $adh = 5000;
                         }
-                        
+
                         //Accessoires
-                        $acc = 10000; 
+                        $acc = 10000;
 
-                        $ttc = $coti + $tps + $css + $adh + $acc;
+                        //Annuel
+                        $ttc = $coti_an + $tps + $css + $adh + $acc;
 
-                        $set('mntcot', $coti);
+                        //Mensuel
+                        $ttcm = ($coti_an + $tps + $css + $acc)/12;
+
+                        $set('mntcot', $coti_an);
                         $set('mnttps', round($tps));
-                        $set('mntcss', $css);
+                        $set('mntcss', round($css));
                         $set('mntadh', $adh);
                         $set('mntacc', $acc);
                         $set('mntttc', round($ttc));
+                        $set('mntmen', round($ttcm));
                     }),
 
                 Fieldset::make('DETAILS DE LA COTISATION')
@@ -84,7 +98,8 @@ class CotisationsRelationManager extends RelationManager
                         TextInput::make('mntcss')->readOnly()->label('CSS'),
                         TextInput::make('mntadh')->readOnly()->label('ADH'),
                         TextInput::make('mntacc')->readOnly()->label('ACC'),
-                        TextInput::make('mntttc')->readOnly()->label('MONTANT TTC')->columnSpanFull()
+                        TextInput::make('mntttc')->readOnly()->label('MONTANT TTC/ANNUEL')->columnSpan('full'),
+                        TextInput::make('mntmen')->readOnly()->label('MONTANT TTC/MENSUEL')->columnSpan('full')
                     ])->columns(5),
 
                 Textarea::make('detcot')->label('COMMENTAIRES')->columnSpan('full'),
@@ -94,14 +109,17 @@ class CotisationsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('mntcot')
+            ->recordTitleAttribute('mntmen')
             ->columns([
-                Tables\Columns\TextColumn::make('mntcot')->label('MNT COT')->money('XAF')
+                Tables\Columns\TextColumn::make('datcot')->sortable()->label('DATE')->dateTime('d/m/Y'),
+                Tables\Columns\TextColumn::make('datval')->sortable()->label('VALIDITE')->dateTime('d/m/Y'),
+                Tables\Columns\TextColumn::make('detcot')->label('OBSERVATIONS'),
+                Tables\Columns\TextColumn::make('mntmen')->label('MENSUALITE')->money('XAF')
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
                             ->money('XAF'),
                     ]),
-                Tables\Columns\TextColumn::make('mnttps')->label('MNT TPS')->money('XAF')
+         /*        Tables\Columns\TextColumn::make('mnttps')->label('MNT TPS')->money('XAF')
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
                             ->money('XAF'),
@@ -125,10 +143,9 @@ class CotisationsRelationManager extends RelationManager
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
                             ->money('XAF'),
-                    ]),
-                Tables\Columns\TextColumn::make('datcot')->sortable()->label('DATE')->dateTime('d/m/Y'),
-                Tables\Columns\TextColumn::make('datval')->sortable()->label('VALIDITE')->dateTime('d/m/Y'),
-                Tables\Columns\TextColumn::make('detcot')->label('OBSERVATIONS'),
+                    ]), */
+                
+               
             ])
             ->filters([
                 //
