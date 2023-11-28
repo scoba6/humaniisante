@@ -10,4 +10,11 @@ use Wildside\Userstamps\Userstamps;
 class Prestataire extends Model
 {
     use HasFactory, Userstamps, SoftDeletes;
+
+    protected $fillable = [
+        'rsopre',
+        'adrpre',
+        'telpre',
+        'maipre',
+     ];
 }

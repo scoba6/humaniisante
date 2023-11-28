@@ -27,7 +27,7 @@ class CotisationsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                DatePicker::make('datcot')->label('DATE DE COTISATION')->displayFormat('d/m/Y')->maxDate(now())->required(),
+                DatePicker::make('datcot')->label('DATE DE COTISATION')->displayFormat('d/m/Y')->required(),
                 DatePicker::make('datval')->label('DATE DE VALIDITE')->displayFormat('d/m/Y')
                     ->required()
                     ->reactive()
@@ -80,7 +80,7 @@ class CotisationsRelationManager extends RelationManager
                         $ttc = $coti_an + $tps + $css + $adh + $acc;
 
                         //Mensuel
-                        $ttcm = ($coti_an + $tps + $css + $acc)/12;
+                        $ttcm = ($coti_an + $tps + $css + $acc) / 12;
 
                         $set('mntcot', $coti_an);
                         $set('mnttps', round($tps));
@@ -119,7 +119,7 @@ class CotisationsRelationManager extends RelationManager
                         Tables\Columns\Summarizers\Sum::make()
                             ->money('XAF'),
                     ]),
-         /*        Tables\Columns\TextColumn::make('mnttps')->label('MNT TPS')->money('XAF')
+                /*        Tables\Columns\TextColumn::make('mnttps')->label('MNT TPS')->money('XAF')
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
                             ->money('XAF'),
@@ -144,8 +144,8 @@ class CotisationsRelationManager extends RelationManager
                         Tables\Columns\Summarizers\Sum::make()
                             ->money('XAF'),
                     ]), */
-                
-               
+
+
             ])
             ->filters([
                 //

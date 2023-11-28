@@ -33,7 +33,7 @@ class PrestataireResource extends Resource
                 TextInput::make('rsopre')->required()->label('RAISON SOCIALE')->columnSpan('full'),
                 Textarea::make('adrpre')->required()->label('ADRESSE')->columnSpan('full'),
                 TextInput::make('telpre')->required()->label('TELEPHONE'),
-                TextInput::make('maipre')->required()->label('E-MAIL'),
+                TextInput::make('maipre')->email()->label('E-MAIL'),
                 Radio::make('natpre')->label('TYPE DE PRESTATIONS')
                     ->options([
                         '1' => 'PUBLIQUE',
@@ -50,6 +50,7 @@ class PrestataireResource extends Resource
                 Tables\Columns\TextColumn::make('rsopre')->label('RAISON SOCIALE')->sortable(),
                 Tables\Columns\TextColumn::make('adrpre')->label('ADRESSE')->sortable(),
                 Tables\Columns\TextColumn::make('telpre')->label('TELEPHONE')->sortable(),
+                Tables\Columns\TextColumn::make('maipre')->label('MAIL')->sortable()
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
