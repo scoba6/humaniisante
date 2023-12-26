@@ -17,16 +17,16 @@ class CreateMembre extends CreateRecord
     {
         //Le rachat des options est interdit dans la formule 1 (OKOUME)
         if ($this->data['formule_id'] == 1) {
-            Notification::make()
-                ->danger()
-                ->title('OPTIONS NON DISPONIBLES')
-                ->body('La formule choisie ne permet pas de rachat optionnel. Veuillez désactiver les options de rachat')
-                ->color('danger')
-                ->seconds(30)
-                ->send();
-            $this->halt();
+            if ($this->data['optmem'] == 1 || $this->data['denmem'] == 1) {
+                Notification::make()
+                    ->danger()
+                    ->title('OPTIONS NON DISPONIBLES')
+                    ->body('La formule choisie ne permet pas de rachat optionnel. Veuillez désactiver les options de rachat')
+                    ->color('danger')
+                    ->seconds(30)
+                    ->send();
+                $this->halt();
+            }
         }
-
-        
     }
 }

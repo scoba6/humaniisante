@@ -21,6 +21,7 @@ use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\CreateAction;
 use Illuminate\Database\Eloquent\Builder;
@@ -65,9 +66,10 @@ class MembreResource extends Resource
                     ->afterStateUpdated(function (\Filament\Forms\Set $set, $get) {
                         $dateOfBirth = $get('datnai');
                         $age = Carbon::now()->diffInYears($dateOfBirth);
+                        //dd($age);
                         $set('agemem', $age);
                     }),
-                TextInput::make('agemem')->label('AGE')->disabled(),
+                TextInput::make('agemem')->label('AGE')->readOnly(),
 
                 Select::make('formule_id')
                     ->label('FORMULE')
@@ -131,7 +133,7 @@ class MembreResource extends Resource
                 Tables\Columns\TextColumn::make('matmem')->sortable()->label('MATRICULE'),
                 Tables\Columns\TextColumn::make('datnai')->sortable()->label('DATE DE NAISSANCE')->datetime('d/m/Y'),
                 Tables\Columns\TextColumn::make('agemem')->sortable()->label('AGE'),
-                Tables\Columns\TextColumn::make('sexmem_id')->sortable()->label('SEXE'),
+                Tables\Columns\TextColumn::make('groupe.libsxg')->sortable()->label('SEXE'),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -142,7 +144,23 @@ class MembreResource extends Resource
                     ->openUrlInNewTab()
                     ->icon('heroicon-m-qr-code')
                     ->iconButton(),
-                Tables\Actions\EditAction::make()->label(''),
+                Tables\Actions\EditAction::make()->label('')
+                    ->before(function (EditAction $action, Membre $record) {
+                        if ($record->formule_id == 1) {
+                            dd($record->formule_id);
+                            if ($record->framem == 1 || $record->optmem == 1 || $record->denmem == 1) {
+                                Notification::make()
+                                    ->warning()
+                                    ->title('OPTIONS NON DISPONIBLES')
+                                    ->body('La formule choisie ne permet pas de rachat optionnel. Veuillez désactiver les options de rachat')
+                                    ->color('danger')
+                                    ->persistent()
+                                    ->send();
+                                $action->halt();
+                            }
+                        }
+                        
+                    })
 
             ])
             ->bulkActions([
