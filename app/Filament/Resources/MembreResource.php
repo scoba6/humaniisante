@@ -145,22 +145,6 @@ class MembreResource extends Resource
                     ->icon('heroicon-m-qr-code')
                     ->iconButton(),
                 Tables\Actions\EditAction::make()->label('')
-                    ->before(function (EditAction $action, Membre $record) {
-                        if ($record->formule_id == 1) {
-                            dd($record->formule_id);
-                            if ($record->framem == 1 || $record->optmem == 1 || $record->denmem == 1) {
-                                Notification::make()
-                                    ->warning()
-                                    ->title('OPTIONS NON DISPONIBLES')
-                                    ->body('La formule choisie ne permet pas de rachat optionnel. Veuillez désactiver les options de rachat')
-                                    ->color('danger')
-                                    ->persistent()
-                                    ->send();
-                                $action->halt();
-                            }
-                        }
-                        
-                    })
 
             ])
             ->bulkActions([

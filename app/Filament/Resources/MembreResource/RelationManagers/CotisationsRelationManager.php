@@ -36,7 +36,7 @@ class CotisationsRelationManager extends RelationManager
                         $opt = $livewire->ownerRecord->option_id; //Option
                         $coti = Option::find($opt)?->mntxaf; //Montant de la coti
                         $coti_an = $coti * 12;
-                        $fra = Humpargen::find(1)->tauval; //Montant des frais d'adhésion
+                       // $fra = Humpargen::find(1)->tauval; //Montant des frais d'adhésion
                         //dd($fra);
 
                         $rht_opt =  Membre::find($mem)?->optmem; //Rachat optique

@@ -10,6 +10,7 @@ use App\Models\Commercial;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\SelectColumn;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\FamilleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -21,7 +22,7 @@ class FamilleResource extends Resource
 
     protected ?string $maxContentWidth = 'full';
     protected static ?string $navigationGroup = 'ADHESIONS';
-    protected static ?string $navigationLabel = 'Groupements/Familles';
+    protected static ?string $navigationLabel = 'Entreprises/Familles';
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'nomfam';
@@ -31,10 +32,20 @@ class FamilleResource extends Resource
         return $form
             ->schema([
 
-                Forms\Components\TextInput::make('nomfam')->required()->label('NOM DE FAMILLE')->columnSpan('full'),
+                Forms\Components\TextInput::make('nomfam')->required()->label('RAISON')->columnSpan('full'),
+                Select::make('statut')
+                    ->options([
+                        '1' => 'PARTICULIER',
+                        '2' => 'ENTREPRISE', 
+                    ])
+                    ->label('STATUT')
+                    ->required()
+                    ->native(true),
+                Forms\Components\TextInput::make('numcdg')->label('CONVENTION DE GESTION')
+                    ->readOnly(),
                 Forms\Components\TextInput::make('vilfam')->required()->label('VILLE'),
                 Forms\Components\TextInput::make('payfam')->required()->label('PAYS'),
-                Forms\Components\Textarea::make('adrfam')->required()->label('ADRESSE (TEL - MAIL)')->columnSpan('full'),
+                Forms\Components\Textarea::make('adrfam')->required()->label('ADRESSE')->columnSpan('full'),
                 Select::make('commercial_id')->label('COMMERCIAL')->required()->options(Commercial::all()->pluck('nomcom', 'id'))->columnSpan('full')
                     //->relationship('commercial', 'id')
                     ->required()
@@ -47,6 +58,16 @@ class FamilleResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('nomfam')->label('NOM DE FAMILLE')->searchable()->sortable(),
+                SelectColumn::make('statut')
+                ->options([
+                    '1' => 'PARTICULIER',
+                    '2' => 'ENTREPRISE', 
+                ])
+                ->disabled()
+                ->sortable()
+                ->selectablePlaceholder(false)
+                ->label('STATUT'),
+                Tables\Columns\TextColumn::make('numcdg')->label('N° DE CONVENTION')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('adrfam')->label('ADRESSE')->sortable(),
                 Tables\Columns\TextColumn::make('vilfam')->label('VILLE')->sortable(),
                 Tables\Columns\TextColumn::make('payfam')->label('PAYS')->sortable(),

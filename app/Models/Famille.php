@@ -18,11 +18,29 @@ class Famille extends Model
     protected $fillable = [
        'matfam',
        'nomfam',
+       'statut',
+       'numcdg',
        'vilfam',
        'payfam',
        'adrfam',
        'commercial_id'
     ];
+
+    public static function boot(): void
+    {
+        parent::boot();
+        static::created(function (Model $model) {
+            // Ce code s'exécute quand un membre est créée
+
+            $pre = 'CDG-';
+            $randomNumber = random_int(100000, 999999); // génération aléatoir entre ces 2 valeurs
+           
+            //Generation du N° de CDG //Convention de gestion
+            $model->numcdg = ($pre.$randomNumber.'H');
+            
+            $model->save();
+        });
+    }
 
     /**
      * Get the membre associated with the Famille
