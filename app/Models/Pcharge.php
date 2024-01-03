@@ -5,6 +5,7 @@ namespace App\Models;
 use Wildside\Userstamps\Userstamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,23 @@ class Pcharge extends Model
         'numpch',
    
      ];
+
+     public static function boot(): void
+    {
+        parent::boot();
+        static::created(function (Model $model) {
+            // Ce code s'exécute quand un membre est créée
+
+            $pre = 'PC-';
+            $randomNumber = random_int(100000, 999999); // génération aléatoir entre ces 2 valeurs
+           
+            //Generation du N° de CDG //Convention de gestion
+            $model->numpch = ($pre.$randomNumber.'H');
+            
+            $model->save();
+        });
+    }
+
 
 
      /**
@@ -47,9 +65,34 @@ class Pcharge extends Model
          return $this->belongsTo(User::class, 'ctrler_id', 'id');
      }
 
-     public function comments(): MorphMany
+     /**
+      * Get all of the actes for the Pcharge
+      *
+      * @return \Illuminate\Database\Eloquent\Relations\HasMany
+      */
+     public function actes(): HasMany
      {
-         return $this->morphMany(Acte::class, 'commentable');
+         return $this->hasMany(PchargeActe::class, 'pcharge_id');
+     }
+
+     /**
+      * Get the beneficiaire that owns the Pcharge
+      *
+      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+      */
+     public function beneficiaire(): BelongsTo
+     {
+         return $this->belongsTo(Membre::class, 'membre_id', 'id');
+     }
+
+     /**
+      * Get the prestataire that owns the Pcharge
+      *
+      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+      */
+     public function prestataire(): BelongsTo
+     {
+         return $this->belongsTo(Prestataire::class, 'prestataire_id', 'id');
      }
     
 }

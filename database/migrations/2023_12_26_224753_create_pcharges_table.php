@@ -18,10 +18,11 @@ return new class extends Migration
             $table->foreignId('membre_id')->constrained('familles_membres');
             $table->foreignId('redac_id')->constrained('users');// Redacteur
             $table->foreignId('ctrler_id')->constrained('users'); // Controleur
-            $table->string('numpch')->nullable(false)->default('numpch'); // N° de prise en charge
+            $table->string('numpch')->nullable(false)->default('numpch')->unique(); // N° de prise en charge
             $table->dateTime('datemi')->nullable(false)->default(now());
             $table->dateTime('datexp')->nullable(false)->default(now());
-            $table->string('qrcpch')->unique()->nullable();
+            $table->string('qrcpch')->unique()->nullable(); //qr code
+            $table->boolean('isvalid')->nullable(false)->default(true); //Tag de validité de la PC
             $table->timestamps();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

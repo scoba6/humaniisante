@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PrintPController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,3 +19,6 @@ use Illuminate\Support\Facades\Route;
 }); */
 
 Route::redirect('/','/admin');
+
+//Impression
+Route::get('/printpc{pc}', PrintPController::class)->name('printpc'); // Prise en charge

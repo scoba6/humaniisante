@@ -16,6 +16,9 @@ class EditPCharge extends EditRecord
             Actions\DeleteAction::make(),
             Actions\ForceDeleteAction::make(),
             Actions\RestoreAction::make(),
+            Actions\Action::make('PC')->button()->label('IMPR. PC')
+                ->url(fn () => route('printpc', $this->record))
+                ->openUrlInNewTab(),
         ];
     }
 }

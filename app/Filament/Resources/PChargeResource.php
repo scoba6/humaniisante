@@ -75,6 +75,23 @@ class PChargeResource extends Resource
                             ])
                             ->columns(2),
 
+                        Forms\Components\Section::make('ACTES')
+                            ->schema([
+                                Repeater::make('actes')
+                                    ->relationship()
+                                    ->schema([
+                                        Select::make('acte_id')->label('NATURE ACTE')->options(Acte::OrderBy('libact')->pluck('libact', 'id'))
+                                            ->required()
+                                            ->searchable()
+                                            ->columnSpan([
+                                                'md' => 2
+                                            ]),
+                                        TextInput::make('qteact')->required()->label('QTE'),  
+                                        TextInput::make('mntact')->required()->label('P.U PLAFOND'),
+                                ])->columns(4)
+                                 ->addActionLabel('Ajouter un acte')
+                            ]),
+                        
                         Forms\Components\Section::make('JUSTIFS')
                             ->schema([
                                 FileUpload::make('attachements')->label('FICHIER JOINT')->columnSpan('full')
@@ -88,22 +105,8 @@ class PChargeResource extends Resource
                                     ->openable()
                                     ->downloadable()
                                     ->visibility('public')
-                            ])
-                            ->collapsible(),
-
-                        Forms\Components\Section::make('ACTES')
-                            ->schema([
-                                Repeater::make('actes')
-                                    ->schema([
-                                        Select::make('acte_id')->label('NATURE ACTE')->options(Acte::OrderBy('libact')->pluck('libact', 'id'))
-                                            ->required()
-                                            ->searchable(),
-                                        TextInput::make('name')->required(),
-                                        
-                                    ])
-                                    ->columns(2)
-                                ])
-                            ->columns(2),
+                            ])->collapsible(),
+                            
                        
                     ])
                     ->columnSpan(['lg' => 2]),
@@ -147,7 +150,12 @@ class PChargeResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('numpch')->sortable()->label('N° PC'),
+                Tables\Columns\TextColumn::make('beneficiaire.nommem')->sortable()->label('BENEFICIAIRE'),
+                Tables\Columns\TextColumn::make('prestataire.rsopre')->sortable()->label('PRESTATAIRE'),
+                Tables\Columns\TextColumn::make('datemi')->sortable()->label('EMIS LE')->datetime('d/m/Y'),
+                Tables\Columns\TextColumn::make('datexp')->sortable()->label('EXPIRATION')->datetime('d/m/Y'),
+                Tables\Columns\IconColumn::make('isvalid')->label('VALIDE')->boolean()
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
