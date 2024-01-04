@@ -10,6 +10,17 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 		<link rel="license" href="https://www.opensource.org/licenses/mit-license/">
 
     <style>
+         #watermark {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            text-align: center;
+            opacity: .6;
+            transform: rotate(45deg);
+            transform-origin: 50% 50%;
+            z-index: -1000;
+            
+         }
 
         body {
                     margin: 1px;
@@ -105,12 +116,13 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 				<p>{{$prs->telpre}}</p>
 			</address>
             <span>
-            
-           
-            </span>
-		
-    
+                <img src="data:image/png;base64,{{ $qrcode }}">
+        
+            </span>    
         </header>
+        <div id="watermark">
+            HUMANIISANTE
+         </div>
 		<article>
 			<h1>BENEFICIAIRE:</h1>
             <br>
@@ -156,7 +168,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 			<table class="balance">
 				<tr>
 					<th><span >Total</span></th>
-					<td><span data-prefix>$</span><span>600.00</span></td>
+					<td><span data-prefix>F CFA </span><span>{{$som_act}}</span></td>
 				</tr>
 				
 			</table>
