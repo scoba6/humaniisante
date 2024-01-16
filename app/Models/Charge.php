@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Pcharge extends Model
+class Charge extends Model
 {
     use HasFactory, Userstamps, SoftDeletes;
+
+    protected $table = 'charges'; //Prise en charge
 
     protected $fillable = [
 
@@ -72,7 +73,7 @@ class Pcharge extends Model
       */
      public function actes(): HasMany
      {
-         return $this->hasMany(PchargeActe::class, 'pcharge_id');
+         return $this->hasMany(Chacte::class, 'charge_id');
      }
 
      /**
@@ -94,5 +95,4 @@ class Pcharge extends Model
      {
          return $this->belongsTo(Prestataire::class, 'prestataire_id', 'id');
      }
-    
 }

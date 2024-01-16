@@ -5,10 +5,11 @@ namespace App\Filament\Resources;
 use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\Acte;
+use App\Models\User;
 use Filament\Tables;
+use App\Models\Charge;
 use App\Models\Membre;
 use App\Models\Famille;
-use App\Models\PCharge;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Prestataire;
@@ -18,23 +19,22 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\PChargeResource\Pages;
+use App\Filament\Resources\ChargeResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\PChargeResource\RelationManagers;
-use App\Models\User;
+use App\Filament\Resources\ChargeResource\RelationManagers;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
-class PChargeResource extends Resource
+class ChargeResource extends Resource
 {
-    protected static ?string $model = PCharge::class;
+    protected static ?string $model = Charge::class;
 
     protected ?string $maxContentWidth = 'full';
     protected static ?string $navigationGroup = 'SINISTRES';
     protected static ?string $modelLabel = 'Prises en charge';
+    protected static ?string $slug = 'sinis/charges';
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $recordTitleAttribute = 'numsin';
-
+    protected static ?string $recordTitleAttribute = 'numpch';
 
     public static function form(Form $form): Form
     {
@@ -158,7 +158,7 @@ class PChargeResource extends Resource
                 Tables\Columns\IconColumn::make('isvalid')->label('VALIDE')->boolean()
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -166,36 +166,26 @@ class PChargeResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-
+    
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-
+    
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPCharges::route('/'),
-            'create' => Pages\CreatePCharge::route('/create'),
-            'edit' => Pages\EditPCharge::route('/{record}/edit'),
+            'index' => Pages\ListCharges::route('/'),
+            'create' => Pages\CreateCharge::route('/create'),
+            'edit' => Pages\EditCharge::route('/{record}/edit'),
         ];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
-    }
+    }    
 }

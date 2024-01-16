@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('familles', function (Blueprint $table) {
             $table->string('statut')->nullable()->default(1)->after('nomfam');
-            $table->string('numcdg')->nullable()->default('CDG')->after('statut')->unique();
+            $table->string('numcdg')->nullable()->default('CDG')->after('statut');
         });
     }
 

@@ -8,14 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class PchargeActe extends Model
+class Chacte extends Model
 {
     use HasFactory, Userstamps, SoftDeletes;
 
-    protected $table = 'pcharge_actes'; //Actes dans la PC
+    protected $table = 'chactes'; //Actes dans la PC
 
     protected $fillable = [
-        'pcharge_id', // PC
+        'charge_id', // PC
         'acte_id', //Acte concernée
         'qteact', // Qté
         'mntact', //PU
@@ -30,6 +30,6 @@ class PchargeActe extends Model
      */
     public function pchg(): HasOne
     {
-        return $this->hasOne(Pcharge::class,'pcharge_id','id' );
+        return $this->hasOne(Charge::class,'charge_id','id');
     }
 }

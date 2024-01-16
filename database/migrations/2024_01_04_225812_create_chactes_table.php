@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pcharge_actes', function (Blueprint $table) {
+        Schema::create('chactes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pcharge_id')->constrained('pcharges')->default(0);
+            $table->foreignId('charge_id')->constrained('charges')->default(0);
             $table->foreignId('acte_id')->constrained('actes')->default(0);
             $table->integer('qteact')->unsigned()->nullable()->default(1);
             $table->integer('mntact')->unsigned()->nullable()->default(0);
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pcharge_actes');
+        Schema::dropIfExists('chactes');
     }
 };

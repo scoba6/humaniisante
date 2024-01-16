@@ -19,7 +19,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
             transform: rotate(45deg);
             transform-origin: 50% 50%;
             z-index: -1000;
-            
+
          }
 
         body {
@@ -27,7 +27,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
                     padding: 1px;
                     font-family: sans-serif;
                 }
- 
+
 
         h1 { font: bold 100% sans-serif; letter-spacing: 0.5em; text-align: center; text-transform: uppercase; }
 
@@ -92,12 +92,12 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
         table.balance td { text-align: right; }
 
         /*table signature */
-        table.signature th {      
+        table.signature th {
             border: 0px ;
             border-collapse: separate;
             text-align: center;
         }
-  
+
 
         /* aside */
         aside h1 { border: none; border-width: 0 0 1px; margin: 0 0 1em; }
@@ -117,11 +117,11 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 			</address>
             <span>
                 <img src="data:image/png;base64,{{ $qrcode }}">
-        
-            </span>    
+
+            </span>
         </header>
         <div id="watermark">
-            HUMANIISANTE
+            <img src={{public_path("LOGO.png")}}>
          </div>
 		<article>
 			<h1>BENEFICIAIRE:</h1>
@@ -159,26 +159,26 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
                             <td><span>{{App\Models\Acte::find($acte->acte_id)->libact}}</span></td>
                             <td><span>Classement</span></td>
                             <td><span>{{$acte->qteact}}</span></td>
-                            <td><span>{{$acte->mntact}}</span></td>
+                            <td><span>{{number_format($acte->mntact, 0, '.','  ')}}</span></td>
                         </tr>
                     @endforeach
 				</tbody>
 			</table>
-		
+
 			<table class="balance">
 				<tr>
 					<th><span >Total</span></th>
-					<td><span data-prefix>F CFA </span><span>{{$som_act}}</span></td>
+					<td><span data-prefix>F CFA </span><span>{{number_format($som_act, 0, '.','  ')}}</span></td>
 				</tr>
-				
+
 			</table>
 		</article>
 		<aside>
 			<h1><span >LIMITATIONS</span></h1>
 			<div>
-				<p>Prise en chage à concurrence de FCFA, selon les plafonds du contrat. Dossier sous réserve des droits
-                    de l'assuré à la date réelle des soins et conformément au barème, aux plafonds, aux exclusions et aux limites prévus par
-                    le contrat.
+				<p>Prise en chage à concurrence de {{number_format($som_act, 0, '.','  ')}} FCFA, selon les plafonds de la convention de gestion. Dossier sous réserve des droits
+                    de l'adhérent à la date réelle des soins et conformément au barème, aux plafonds, aux exclusions et aux limites prévus par
+                    la convention de gestion.
                 </p>
 			</div>
 		</aside>
@@ -186,23 +186,23 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
          <aside>
 			<h1><span >INSTRUCTIONS PARTICULIERES</span></h1>
 			<div>
-				<p>Exemplaire à signer et à retourner à l'assureur accompagné des pièces ci-après:</p>
+				<p>Exemplaire à signer et à retourner à HUMANIIS SANTE GABON accompagné des pièces ci-après:</p>
                 <ol type="1">
                     <li>Rapport médical</li>
                     <li>Ordonnances originales et pièces détaillées des pharmacies en cas d'achat de médicaments</li>
                     <li>Facture du prestataire</li>
-                </ol> 
+                </ol>
 			</div>
 		</aside>
 
-    
+
         <table class='signature' style="width:100%">
             <tr>
                 <th>LE BENEFICIAIRE</th>
                 <th>LE PRESTATAIRE</th>
-                <th>POUR LA COMPAGNIE</th>
+                <th>POUR HUMANIIS SANTE GABON</th>
             </tr>
-        </table>	
+        </table>
 	</body>
-    
+
 </html>

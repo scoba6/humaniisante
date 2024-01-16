@@ -29,10 +29,13 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Tables\Actions\DeleteBulkAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Filament\Tables\Actions\RestoreBulkAction;
 use App\Filament\Resources\MembreResource\Pages;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\MembreResource\Pages\EditMembre;
 use App\Filament\Resources\MembreResource\RelationManagers;
 use App\Filament\Resources\MembreResource\Pages\ListMembres;
@@ -144,7 +147,8 @@ class MembreResource extends Resource
                     ->openUrlInNewTab()
                     ->icon('heroicon-m-qr-code')
                     ->iconButton(),
-                Tables\Actions\EditAction::make()->label('')
+                Tables\Actions\EditAction::make()->label(''),
+               
 
             ])
             ->bulkActions([
@@ -152,6 +156,7 @@ class MembreResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                 ]),
             ])
             ->emptyStateActions([
