@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SinStatut;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Wildside\Userstamps\Userstamps;
@@ -31,12 +32,13 @@ class Sinistre extends Model
         'mnbase',
         'mnttmo', // Ticket moderateur
         'mntass', // Part Humanniis
-        'attachements'
+        'attachements',
+        'status'
     ];
 
     public static function boot(): void
     {
-        parent::boot();  
+        parent::boot();
         static::created(function (Model $model) {
             // Ce code s'exécute quand un sinistre est créé
             // Numéro de sinistre
@@ -54,11 +56,13 @@ class Sinistre extends Model
                     $model->numsin = ($sh.Carbon::now()->format('y').Carbon::now()->format('m').$model->id);
                     break;
             }
-            $model->save(); 
+            $model->save();
         });
     }
 
- 
+
+
+
     /**
      * Get the prestaire that owns the Sinistre
      *

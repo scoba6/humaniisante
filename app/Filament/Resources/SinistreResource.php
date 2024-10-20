@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\SinStatut;
 use Filament\Forms;
 use App\Models\Acte;
 use App\Models\User;
@@ -21,6 +22,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Placeholder;
 use Filament\Infolists\Components\TextEntry;
 use App\Filament\Resources\SinistreResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -31,14 +33,14 @@ class SinistreResource extends Resource
 {
     protected static ?string $model = Sinistre::class;
 
-    
+
     protected ?string $maxContentWidth = 'full';
     protected static ?string $navigationGroup = 'SINISTRES';
     protected static ?string $modelLabel = 'Saisie';
     protected static ?int $navigationSort = 1;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $recordTitleAttribute = 'numpch';
-    
+
 
     public static function form(Form $form): Form
     {
@@ -57,21 +59,30 @@ class SinistreResource extends Resource
 
                 Forms\Components\Section::make()
                 ->schema([
-                    Forms\Components\Placeholder::make('created_at')
+                    Placeholder::make('created_at')
                         ->label('Saisi le')
                         ->content(fn (Sinistre $record): ?string => $record->created_at?->diffForHumans()),
-                    
-                    Forms\Components\Placeholder::make('created_by')
+
+                    Placeholder::make('created_by')
                         ->label('Par')
                         ->content(fn (Sinistre $record): ?string => User::find($record->updated_by)?->name),
 
-                    Forms\Components\Placeholder::make('updated_at')
+                    Placeholder::make('updated_at')
                         ->label('Derniere Modification')
                         ->content(fn (Sinistre $record): ?string => $record->updated_at?->diffForHumans()),
 
-                    Forms\Components\Placeholder::make('updated_by')
+                    Placeholder::make('updated_by')
                         ->label('Par')
                         ->content(fn (Sinistre $record): ?string => User::find($record->updated_by)?->name),
+
+                    Select::make('status')->label('STATUT')
+                        ->options([
+                            '1' => 'A VERIFIER',
+                            '2' => 'VERIFIE',
+                            '3' => 'REGLE',
+                        ])
+                        //->required()
+
                 ])
                 ->columnSpan(['lg' => 1])
                 ->hidden(fn (?Sinistre $record) => $record === null),
@@ -99,6 +110,7 @@ class SinistreResource extends Resource
                 //Tables\Columns\TextColumn::make('attachements')->sortable()->label('FICHIERS'),
 
 
+
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -117,14 +129,14 @@ class SinistreResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -132,8 +144,8 @@ class SinistreResource extends Resource
             'create' => Pages\CreateSinistre::route('/create'),
             'edit' => Pages\EditSinistre::route('/{record}/edit'),
         ];
-    }    
-    
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -162,13 +174,13 @@ class SinistreResource extends Resource
                         ->maxDate(now())
                         ->native(false)
                         ->required(),
-                    
+
                     Select::make('acte_id')->label('NATURE ACTE')->options(Acte::OrderBy('libact')->pluck('libact', 'id'))
                         ->required()
-                        ->searchable(), 
-                    Select::make('nataff_id')->label('NATURE AFFECTION')->options(Humpargen::query()->whereIn('id', [4,5])->pluck('LIBPAR', 'id'))
+                        ->searchable(),
+                    Select::make('nataff_id')->label('NATURE AFFECTION')->options(Humpargen::query()->whereIn('id', [4,5,6])->pluck('LIBPAR', 'id'))
                         ->required()
-                        ->searchable(), 
+                        ->searchable(),
                     TextInput::make('mnttmo')->label('TM')
                         ->required(),
                     TextInput::make('mntass')->label('PART HUMANIIS')
@@ -185,7 +197,7 @@ class SinistreResource extends Resource
                         ->downloadable()
                         ->visibility('public')
                 ]),
-                  
+
             ];
         }
 
@@ -195,14 +207,14 @@ class SinistreResource extends Resource
                 ->searchable()
                 ->reactive()
                 ->afterStateUpdated(fn (callable $set) => $set('membre_id', null)),
-           
+
             //Dependant select
             Select::make('membre_id')->label('MEMBRE')
                 ->searchable()
                 ->required()
                 ->options(function ($get) {
                     $fam = Famille::find($get('famille_id'))?->id; //Famille
-                    
+
                     if (!$fam) {
                         //return Option::all()->pluck('libopt', 'id');
                     }
@@ -210,7 +222,7 @@ class SinistreResource extends Resource
                         ->where('famille_id', $fam)
                         ->pluck('nommem', 'id',);
                 }),
-    
+
         ];
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\SinStatut;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -27,7 +28,7 @@ return new class extends Migration
             $table->integer('mnbase')->unsigned()->nullable()->default(12); //Base humaniis
             $table->integer('mnttmo')->unsigned()->nullable()->default(12); // TM
             $table->integer('mntass')->unsigned()->nullable()->default(12); //Part humaniis
-            $table->integer('status')->unsigned()->nullable(false)->default(1);
+            $table->string('status')->default(SinStatut::A);
             $table->string('attachements', 100)->nullable()->default('text');
             $table->string('testdbal', 100)->nullable()->default('text');
             $table->timestamps();

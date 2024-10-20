@@ -12,17 +12,14 @@ use Illuminate\Support\Carbon;
 
 class DateFilter extends Widget implements HasForms
 {
-    
+
     use InteractsWithForms;
- 
+
     protected static string $view = 'filament.widgets.date-filter';
- 
-    
- 
     protected static ?int $sort = -2;
- 
+
     public ?array $data = [];
- 
+
     public function form(Form $form): Form
     {
         return $form
@@ -35,15 +32,15 @@ class DateFilter extends Widget implements HasForms
                             ->displayFormat('d/m/Y')
                             ->closeOnDateSelection()
                             ->native(false)
-                            ->live() 
+                            ->live()
                             ->afterStateUpdated(fn (?string $state) => $this->dispatch('updateFromDate', from: $state)),
                         DatePicker::make('AU')
                             ->maxDate(now())
                             ->displayFormat('d/m/Y')
                             ->closeOnDateSelection()
                             ->native(false)
-                            ->live() 
-                            ->afterStateUpdated(fn (?string $state) => $this->dispatch('updateToDate', to: $state)), 
+                            ->live()
+                            ->afterStateUpdated(fn (?string $state) => $this->dispatch('updateToDate', to: $state)),
                     ]),
             ]);
     }
