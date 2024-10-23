@@ -2,13 +2,15 @@
 
 namespace App\Filament\Resources;
 
-use App\Enums\SinStatut;
 use Filament\Forms;
 use App\Models\Acte;
 use App\Models\User;
 use Filament\Tables;
 use App\Models\Membre;
 use App\Models\Famille;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use App\Enums\SinStatut;
 use App\Models\Sinistre;
 use Filament\Forms\Form;
 use App\Models\Humpargen;
@@ -17,9 +19,11 @@ use App\Models\Prestataire;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
@@ -27,6 +31,9 @@ use Filament\Infolists\Components\TextEntry;
 use App\Filament\Resources\SinistreResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SinistreResource\RelationManagers;
+use App\Models\Formule;
+use Illuminate\Database\Eloquent\Model;
+use League\CommonMark\Extension\CommonMark\Renderer\Block\ThematicBreakRenderer;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class SinistreResource extends Resource
@@ -161,9 +168,24 @@ class SinistreResource extends Resource
 
                 Grid::make()
                 ->schema([
-                    Select::make('prestataire_id')->label('PRESTATAIRE')->options(Prestataire::all()->pluck('rsopre', 'id'))->columnSpan('full')
+                    Select::make('typsin')->label('TYPE')
+                    ->options([
+                        '1' => 'AMBULATOIRE',
+                        '2' => 'HOSPITALISATION',
+                        ])
+                        ->required(),
+                    Select::make('prestataire_id')->label('PRESTATAIRE')->options(Prestataire::all()->pluck('rsopre', 'id'))
                         ->required()
                         ->searchable(),
+                    Section::make()
+                        ->schema([
+                            TextInput::make('mnttot')->label('MONTANT TOAL')
+                                ->required(),
+                            TextInput::make('mnttmo')->label('TM')
+                                ->readOnly(),
+                            TextInput::make('mntass')->label('PART HUMANIIS')
+                                  ->readOnly(),
+                        ])->columns(3),
                     DatePicker::make('datsai')->label('DATE DE SAISIE')
                         ->displayFormat('d/m/Y')
                         ->maxDate(now())
@@ -173,18 +195,41 @@ class SinistreResource extends Resource
                         ->displayFormat('d/m/Y')
                         ->maxDate(now())
                         ->native(false)
-                        ->required(),
+                        ->required()
+                        ->reactive()
+                        ->afterStateUpdated(function (Set $set, Get $get) {
+                            $mbre = $get('membre_id');
+                            $type = $get('typsin'); //Type de sinistre
+                            $mnto = $get('mnttot');
+                            $frml = Membre::find($mbre)?->formule_id; // La formule du membre
 
+                            switch ($type) {
+                                case 1:
+                                    $taux = Formule::find($frml)?->tauamb; // Taux de couverture en fonction du type de sinistre
+                                    break;
+                                case 2:
+                                    $taux = Formule::find($frml)?->tauhos; // Taux de couverture en fonction du type de sinistre
+                                    break;
+                                default:
+                                    $taux = Formule::find($frml)?->tauamb; // par défaut on est jr en ambulatoire
+                            }
+
+                            //Part HUMANIIS
+                            $parh =  ($mnto * $taux)/100;
+
+                            //le ticket modérateur
+                            $timo = $mnto - $parh;
+
+                            $set('mnttmo',  $timo);
+                            $set('mntass',  $parh);
+                        }),
                     Select::make('acte_id')->label('NATURE ACTE')->options(Acte::OrderBy('libact')->pluck('libact', 'id'))
                         ->required()
                         ->searchable(),
                     Select::make('nataff_id')->label('NATURE AFFECTION')->options(Humpargen::query()->whereIn('id', [4,5,6])->pluck('LIBPAR', 'id'))
                         ->required()
                         ->searchable(),
-                    TextInput::make('mnttmo')->label('TM')
-                        ->required(),
-                    TextInput::make('mntass')->label('PART HUMANIIS')
-                        ->required(),
+
                     FileUpload::make('attachements')->label('FICHIER JOINT')->columnSpan('full')
                         ->directory('SINISTRES')
                         ->getUploadedFileNameForStorageUsing(
