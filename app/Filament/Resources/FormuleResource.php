@@ -91,7 +91,7 @@ class FormuleResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()->label(''),
             ])
-            ->bulkActions([
+            ->groupedBulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),

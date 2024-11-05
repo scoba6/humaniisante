@@ -32,7 +32,7 @@ class ChargeResource extends Resource
     protected static ?string $navigationGroup = 'SINISTRES';
     protected static ?string $modelLabel = 'Prises en charge';
     protected static ?string $slug = 'sinis/charges';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $recordTitleAttribute = 'numpch';
 
@@ -86,12 +86,12 @@ class ChargeResource extends Resource
                                             ->columnSpan([
                                                 'md' => 2
                                             ]),
-                                        TextInput::make('qteact')->required()->label('QTE'),  
+                                        TextInput::make('qteact')->required()->label('QTE'),
                                         TextInput::make('mntact')->required()->label('P.U PLAFOND'),
                                 ])->columns(4)
                                  ->addActionLabel('Ajouter un acte')
                             ]),
-                        
+
                         Forms\Components\Section::make('JUSTIFS')
                             ->schema([
                                 FileUpload::make('attachements')->label('FICHIER JOINT')->columnSpan('full')
@@ -106,8 +106,8 @@ class ChargeResource extends Resource
                                     ->downloadable()
                                     ->visibility('public')
                             ])->collapsible(),
-                            
-                       
+
+
                     ])
                     ->columnSpan(['lg' => 2]),
 
@@ -134,7 +134,7 @@ class ChargeResource extends Resource
                                     ->required()
                                     ->searchable(),
 
-                                Forms\Components\Select::make('ctrler_id') 
+                                Forms\Components\Select::make('ctrler_id')
                                     ->options(User::all()->pluck('name', 'id'))
                                     ->label('CONTRÔLEUR')
                                     ->required()
@@ -163,7 +163,7 @@ class ChargeResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
+            ->groupedBulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
@@ -172,14 +172,14 @@ class ChargeResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -187,5 +187,5 @@ class ChargeResource extends Resource
             'create' => Pages\CreateCharge::route('/create'),
             'edit' => Pages\EditCharge::route('/{record}/edit'),
         ];
-    }    
+    }
 }

@@ -11,21 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('familles', function (Blueprint $table) {
+        Schema::create('sinistre_actes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('commercial_id')->constrained('commercials')->default(0);
-            $table->string('nomfam')->default('')->nullable(false);
-            $table->string('statut')->nullable()->default(1);
-            $table->string('numcdg')->nullable()->default('CDG');
-            $table->string('vilfam')->default('')->nullable(); //Ville
-            $table->string('payfam')->default('')->nullable(); //Pays
-            $table->string('adrfam')->default('')->nullable(); //Adress
+            $table->foreignId('sinistre_id')->constrained('sinistres')->default(1);
+            $table->foreignId('acte_id')->constrained('actes')->default(1);
+            $table->integer('qteact')->nullable(false)->default(1);
             $table->timestamps();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->unsignedBigInteger('deleted_by')->nullable();
             $table->softDeletes();
-
         });
     }
 
@@ -34,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('familles');
+        Schema::dropIfExists('sinistre_actes');
     }
 };

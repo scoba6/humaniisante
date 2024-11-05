@@ -8,6 +8,8 @@ use Illuminate\Support\Carbon;
 use Wildside\Userstamps\Userstamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -103,6 +105,17 @@ class Sinistre extends Model
     {
         return $this->belongsTo(Humpargen::class, 'nataff_id', 'id');
     }
+
+    public function sinactes(): HasMany
+    {
+        return $this->hasMany(SinistreActe::class, 'sinistre_id');
+    }
+
+
+
+
+
+
 
 
 }

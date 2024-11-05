@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\SinistreResource\Pages;
 
 use Filament\Actions;
+use Filament\Notifications\Actions\Action;
 use Filament\Forms\Components\Section;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\Wizard\Step;
@@ -19,20 +20,20 @@ class CreateSinistre extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $order = $this->record;
+        $sinistre = $this->record;
 
         Notification::make()
             ->title('Nouveau Sinistre')
             ->icon('heroicon-o-shopping-bag')
-           /*  ->body("**{$order->customer->name} ordered {$order->items->count()} products.**")
+             ->body("**Sinistre {$sinistre->numsin} créé**")
             ->actions([
                 Action::make('View')
-                    ->url(SinistreResource::getUrl('edit', ['record' => $order])),
-            ]) */
+                    ->url(SinistreResource::getUrl('edit', ['record' => $sinistre])),
+            ])
             ->sendToDatabase(auth()->user());
     }
 
-   
+
     protected function getSteps(): array
     {
         return [

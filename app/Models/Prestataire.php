@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Wildside\Userstamps\Userstamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Wildside\Userstamps\Userstamps;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Prestataire extends Model
 {
@@ -17,4 +18,14 @@ class Prestataire extends Model
         'telpre',
         'maipre',
      ];
+
+     /**
+      * Get all of the sinistres for the Prestataire
+      *
+      * @return \Illuminate\Database\Eloquent\Relations\HasMany
+      */
+     public function sinistres(): HasMany
+     {
+         return $this->hasMany(Sinistre::class, 'foreign_key', 'local_key');
+     }
 }

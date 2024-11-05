@@ -8,6 +8,7 @@ use App\Models\User;
 use Filament\Tables;
 use App\Models\Membre;
 use App\Models\Famille;
+use App\Models\Formule;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use App\Enums\SinStatut;
@@ -20,10 +21,12 @@ use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Actions\Action;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
-
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
@@ -31,10 +34,11 @@ use Filament\Infolists\Components\TextEntry;
 use App\Filament\Resources\SinistreResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SinistreResource\RelationManagers;
-use App\Models\Formule;
-use Illuminate\Database\Eloquent\Model;
-use League\CommonMark\Extension\CommonMark\Renderer\Block\ThematicBreakRenderer;
+use App\Models\Nataff;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Toggle;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use League\CommonMark\Extension\CommonMark\Renderer\Block\ThematicBreakRenderer;
 
 class SinistreResource extends Resource
 {
@@ -45,7 +49,7 @@ class SinistreResource extends Resource
     protected static ?string $navigationGroup = 'SINISTRES';
     protected static ?string $modelLabel = 'Saisie';
     protected static ?int $navigationSort = 1;
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
     protected static ?string $recordTitleAttribute = 'numpch';
 
 
@@ -125,7 +129,7 @@ class SinistreResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
+            ->groupedBulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
@@ -168,15 +172,42 @@ class SinistreResource extends Resource
 
                 Grid::make()
                 ->schema([
-                    Select::make('typsin')->label('TYPE')
-                    ->options([
-                        '1' => 'AMBULATOIRE',
-                        '2' => 'HOSPITALISATION',
-                        ])
-                        ->required(),
-                    Select::make('prestataire_id')->label('PRESTATAIRE')->options(Prestataire::all()->pluck('rsopre', 'id'))
+                    Select::make('prestataire_id')->label('PRESTATAIRE')->columnSpanFull()
+                        ->options(Prestataire::all()->pluck('rsopre', 'id'))
                         ->required()
                         ->searchable(),
+                    Select::make('typsin')->label('TYPE')
+                        ->options([
+                            '1' => 'AMBULATOIRE',
+                            '2' => 'HOSPITALISATION',
+                            ])
+                        ->required(),
+                        Select::make('nataff_id')->label('NATURE AFFECTION')->options(Humpargen::query()->whereNotIn('id', [1,2,3])->pluck('LIBPAR', 'id'))
+                            ->required()
+                            ->native(false)
+                            //->relationship(name: 'humpagen', titleAttribute: 'LIBPAR')
+                            ->createOptionForm([
+                                TextInput::make('libpar')->label('NATURE')
+                                    ->required()
+                                    ->maxLength(255),
+                                Toggle::make('active')->label('ACTIVE')
+                                    ->required()
+                                    ->default(true)
+                                    ->onColor('success')
+                                    ->offColor('danger'),
+                            ])
+                          ->createOptionUsing(function (Action $action) {
+                            return $action
+                                ->modalHeading('Ajouter une nature d\'affection')
+                                ->modalSubmitActionLabel('Ajouter une nature d\'affection')
+                                ->modalWidth('lg');
+                        }),
+                       /*  ->createOptionAction(function (Action $action) {
+                            return $action
+                                ->modalHeading('Ajouter une nature d\'affection')
+                                ->modalSubmitActionLabel('Ajouter une nature d\'affection')
+                                ->modalWidth('lg');
+                        }), */
                     Section::make()
                         ->schema([
                             TextInput::make('mnttot')->label('MONTANT TOAL')
@@ -189,7 +220,9 @@ class SinistreResource extends Resource
                     DatePicker::make('datsai')->label('DATE DE SAISIE')
                         ->displayFormat('d/m/Y')
                         ->maxDate(now())
+                        ->default(now())
                         ->native(false)
+                        ->readOnly()
                         ->required(),
                     DatePicker::make('datmal')->label('DATE MALADIE')
                         ->displayFormat('d/m/Y')
@@ -223,14 +256,7 @@ class SinistreResource extends Resource
                             $set('mnttmo',  $timo);
                             $set('mntass',  $parh);
                         }),
-                    Select::make('acte_id')->label('NATURE ACTE')->options(Acte::OrderBy('libact')->pluck('libact', 'id'))
-                        ->required()
-                        ->searchable(),
-                    Select::make('nataff_id')->label('NATURE AFFECTION')->options(Humpargen::query()->whereIn('id', [4,5,6])->pluck('LIBPAR', 'id'))
-                        ->required()
-                        ->searchable(),
-
-                    FileUpload::make('attachements')->label('FICHIER JOINT')->columnSpan('full')
+                    FileUpload::make('attachements')->label('JUSTIFICATIF')->columnSpan('full')
                         ->directory('SINISTRES')
                         ->getUploadedFileNameForStorageUsing(
                             fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
@@ -240,7 +266,28 @@ class SinistreResource extends Resource
                         ->previewable(true)
                         ->openable()
                         ->downloadable()
-                        ->visibility('public')
+                        ->visibility('public'),
+                        
+                    Repeater::make('sinactes')->label('')
+                        ->relationship()
+                        ->schema([
+                            Select::make('acte_id')->label('NATURE ACTE')->options(Acte::OrderBy('libact')->pluck('libact', 'id'))
+                                ->required()
+                                ->searchable()
+                                ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                ->columnSpan([
+                                    'md' => 5,
+                                ]),
+                            TextInput::make('qteact')->label('QTE')
+                                ->required()
+                                ->numeric()
+                                ->minValue(1)
+                                ->columnSpan([
+                                    'md' => 3,
+                                ]),
+                        ]) ->columns([
+                        'md' => 8,
+                    ])->addActionLabel('Ajouter un acte'),
                 ]),
 
             ];
