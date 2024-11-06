@@ -38,6 +38,7 @@ class ReglementResource extends Resource
     protected static ?string $navigationGroup = 'SINISTRES';
     protected static ?string $modelLabel = 'Règlements';
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'numreg';
     protected static ?string $navigationIcon = 'heroicon-o-currency-euro';
 
     public static function form(Form $form): Form

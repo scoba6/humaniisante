@@ -46,6 +46,12 @@ class CreateSinistre extends CreateRecord
                 ->schema([
                     Section::make()->schema(SinistreResource::getFormSchema('prestation')),
                 ]),
+            Step::make('Détails des actes')
+                ->schema([
+                    Section::make()->schema([
+                        SinistreResource::getItemsRepeater(),
+                    ]),
+                ]),
         ];
     }
 }

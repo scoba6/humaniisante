@@ -50,7 +50,7 @@ class SinistreResource extends Resource
     protected static ?string $modelLabel = 'Saisie';
     protected static ?int $navigationSort = 1;
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
-    protected static ?string $recordTitleAttribute = 'numpch';
+    protected static ?string $recordTitleAttribute = 'numsin';
 
 
     public static function form(Form $form): Form
@@ -59,12 +59,16 @@ class SinistreResource extends Resource
             ->schema([
                 Forms\Components\Group::make()
                 ->schema([
-                    Forms\Components\Section::make()
+                    Section::make()
                         ->schema(static::getFormSchema())
                         ->columns(2),
 
-                    Forms\Components\Section::make('Prestation')
+                    Section::make('Détails de la prestation')
                         ->schema(static::getFormSchema('prestation')),
+                    Section::make('Détails des actes')
+                        ->schema([
+                            static::getItemsRepeater(),
+                        ]),
                 ])
                 ->columnSpan(['lg' => fn (?Sinistre $record) => $record === null ? 3 : 2]),
 
@@ -169,7 +173,6 @@ class SinistreResource extends Resource
     {
         if ($section === 'prestation') {
             return [
-
                 Grid::make()
                 ->schema([
                     Select::make('prestataire_id')->label('PRESTATAIRE')->columnSpanFull()
@@ -202,16 +205,10 @@ class SinistreResource extends Resource
                                 ->modalSubmitActionLabel('Ajouter une nature d\'affection')
                                 ->modalWidth('lg');
                         }),
-                       /*  ->createOptionAction(function (Action $action) {
-                            return $action
-                                ->modalHeading('Ajouter une nature d\'affection')
-                                ->modalSubmitActionLabel('Ajouter une nature d\'affection')
-                                ->modalWidth('lg');
-                        }), */
                     Section::make()
                         ->schema([
                             TextInput::make('mnttot')->label('MONTANT TOAL')
-                                ->required(),
+                                ->readOnly(),
                             TextInput::make('mnttmo')->label('TM')
                                 ->readOnly(),
                             TextInput::make('mntass')->label('PART HUMANIIS')
@@ -266,28 +263,7 @@ class SinistreResource extends Resource
                         ->previewable(true)
                         ->openable()
                         ->downloadable()
-                        ->visibility('public'),
-                        
-                    Repeater::make('sinactes')->label('')
-                        ->relationship()
-                        ->schema([
-                            Select::make('acte_id')->label('NATURE ACTE')->options(Acte::OrderBy('libact')->pluck('libact', 'id'))
-                                ->required()
-                                ->searchable()
-                                ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                ->columnSpan([
-                                    'md' => 5,
-                                ]),
-                            TextInput::make('qteact')->label('QTE')
-                                ->required()
-                                ->numeric()
-                                ->minValue(1)
-                                ->columnSpan([
-                                    'md' => 3,
-                                ]),
-                        ]) ->columns([
-                        'md' => 8,
-                    ])->addActionLabel('Ajouter un acte'),
+                        ->visibility('public')
                 ]),
 
             ];
@@ -316,5 +292,59 @@ class SinistreResource extends Resource
                 }),
 
         ];
+    }
+
+    public static function getItemsRepeater(): Repeater
+    {
+
+        return Repeater::make('sinactes')->label('Actes du sinistre')
+            ->relationship()
+            ->schema([
+                Select::make('acte_id')->label('NATURE ACTE')->options(Acte::OrderBy('libact')->pluck('libact', 'id'))
+                    ->required()
+                    ->searchable()
+                    ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                    ->columnSpan([
+                        'md' => 4,
+                    ]),
+                TextInput::make('qteact')->label('QTE')
+                    ->required()
+                    ->numeric()
+                    ->minValue(1)
+                    ->columnSpan([
+                        'md' => 1,
+                    ]),
+                TextInput::make('mntact')->label('PRIX U.') //Montant unitaire de l'acte
+                    ->required()
+                    ->numeric()
+                    ->readOnly()
+                    ->minValue(1)
+                    ->columnSpan([
+                        'md' => 1,
+                    ]),
+                TextInput::make('mnttot')->label('TOTAL') //Montant total (mntact*qteact)
+                    ->numeric()
+                    ->readOnly()
+                    ->minValue(1)
+                    ->columnSpan([
+                        'md' => 2,
+                    ]),
+                TextInput::make('tmotact')->label('TM')
+                    ->numeric()
+                    ->readOnly()
+                    ->minValue(1)
+                    ->columnSpan([
+                        'md' => 1,
+                    ]),
+                TextInput::make('mntass')->label('PART HUM.')
+                    ->numeric()
+                    ->readOnly()
+                    ->minValue(1)
+                    ->columnSpan([
+                        'md' => 1,
+                    ]),
+            ])->columns([
+                'md' => 10,
+            ])->addActionLabel('Ajouter un acte');
     }
 }
