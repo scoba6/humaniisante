@@ -7,6 +7,7 @@ use App\Models\Acte;
 use App\Models\User;
 use Filament\Tables;
 use App\Models\Membre;
+use App\Models\Nataff;
 use App\Models\Famille;
 use App\Models\Formule;
 use Filament\Forms\Get;
@@ -19,11 +20,12 @@ use Filament\Tables\Table;
 use App\Models\Prestataire;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Actions\Action;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
@@ -31,13 +33,12 @@ use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Forms\Components\Actions\Action;
 use App\Filament\Resources\SinistreResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SinistreResource\RelationManagers;
-use App\Models\Nataff;
-use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Toggle;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 use League\CommonMark\Extension\CommonMark\Renderer\Block\ThematicBreakRenderer;
 
 class SinistreResource extends Resource
@@ -94,7 +95,7 @@ class SinistreResource extends Resource
                         ->options([
                             '1' => 'A VERIFIER',
                             '2' => 'VERIFIE',
-                            '3' => 'REGLE',
+                            //'3' => 'REGLE',
                         ])
                         //->required()
 
@@ -122,13 +123,10 @@ class SinistreResource extends Resource
                 Tables\Columns\TextColumn::make('membre.nommem')->sortable()->label('MEMBRE'),
                 Tables\Columns\TextColumn::make('mnttmo')->sortable()->label('TM'),
                 Tables\Columns\TextColumn::make('mntass')->sortable()->label('P. HUMANIIS'),
-                //Tables\Columns\TextColumn::make('attachements')->sortable()->label('FICHIERS'),
-
-
-
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
+                DateRangeFilter::make('created_at')->label('Saisi le'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -220,39 +218,14 @@ class SinistreResource extends Resource
                         ->default(now())
                         ->native(false)
                         ->readOnly()
+                        ->disabled()
                         ->required(),
                     DatePicker::make('datmal')->label('DATE MALADIE')
                         ->displayFormat('d/m/Y')
                         ->maxDate(now())
                         ->native(false)
-                        ->required()
-                        ->reactive()
-                        ->afterStateUpdated(function (Set $set, Get $get) {
-                            $mbre = $get('membre_id');
-                            $type = $get('typsin'); //Type de sinistre
-                            $mnto = $get('mnttot');
-                            $frml = Membre::find($mbre)?->formule_id; // La formule du membre
+                        ->required(),
 
-                            switch ($type) {
-                                case 1:
-                                    $taux = Formule::find($frml)?->tauamb; // Taux de couverture en fonction du type de sinistre
-                                    break;
-                                case 2:
-                                    $taux = Formule::find($frml)?->tauhos; // Taux de couverture en fonction du type de sinistre
-                                    break;
-                                default:
-                                    $taux = Formule::find($frml)?->tauamb; // par défaut on est jr en ambulatoire
-                            }
-
-                            //Part HUMANIIS
-                            $parh =  ($mnto * $taux)/100;
-
-                            //le ticket modérateur
-                            $timo = $mnto - $parh;
-
-                            $set('mnttmo',  $timo);
-                            $set('mntass',  $parh);
-                        }),
                     FileUpload::make('attachements')->label('JUSTIFICATIF')->columnSpan('full')
                         ->directory('SINISTRES')
                         ->getUploadedFileNameForStorageUsing(
@@ -300,36 +273,80 @@ class SinistreResource extends Resource
         return Repeater::make('sinactes')->label('Actes du sinistre')
             ->relationship()
             ->schema([
-                Select::make('acte_id')->label('NATURE ACTE')->options(Acte::OrderBy('libact')->pluck('libact', 'id'))
+                Select::make('acte_id')->label('ACTE')->options(Acte::OrderBy('libact')->pluck('libact', 'id'))
                     ->required()
                     ->searchable()
                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                     ->columnSpan([
                         'md' => 4,
                     ]),
+                TextInput::make('mntact')->label('PRIX U.') //Montant unitaire de l'acte
+                    ->required()
+                    ->numeric()
+                    ->minValue(0)
+                    ->columnSpan([
+                        'md' => 1,
+                    ]),
+                TextInput::make('mntxlu')->label('MNT EXCLU.') //Montant exclu
+                    ->numeric()
+                    ->minValue(0),
+
+
                 TextInput::make('qteact')->label('QTE')
                     ->required()
                     ->numeric()
                     ->minValue(1)
+                    ->reactive()
+                    ->afterStateUpdated(function (Set $set, Get $get) {
+
+                        //$mbre = $get('membre_id');
+                        $sini = $get('sinistre_id');
+                        $mbre = Sinistre::find($sini)?->membre_id;
+
+                        $type = $get('typsin'); //Type de sinistre
+                        $qtea = $get('qteact');
+                        $mnac = $get('mntact'); // Montant de l'acte
+                        $mnto = $get('mnttot');
+                        $mntx = $get('mntxlu'); //Exclusion
+                        $frml = Membre::find($mbre)?->formule_id; // La formule du membre
+
+                        switch ($type) {
+                            case 1:
+                                $taux = Formule::find($frml)?->tauamb; // Taux de couverture en fonction du type de sinistre
+                                break;
+                            case 2:
+                                $taux = Formule::find($frml)?->tauhos; // Taux de couverture en fonction du type de sinistre
+                                break;
+                            default:
+                                $taux = Formule::find($frml)?->tauamb; // par défaut on est jr en ambulatoire
+                        }
+                        //Montant - Exclusion
+                        $reel = $mnac - $mntx;
+
+                        //Total
+                        $ttal = $reel * $qtea;
+
+                        //Part HUMANIIS
+                        $parh =  ($ttal * $taux)/100;
+
+                        //le ticket modérateur
+                        $timo = $ttal - $parh;
+
+                        $set('mnttot',  $ttal);
+                        $set('mnttmo',  $timo);
+                        $set('mntass',  $parh);
+                    })
                     ->columnSpan([
                         'md' => 1,
                     ]),
-                TextInput::make('mntact')->label('PRIX U.') //Montant unitaire de l'acte
-                    ->required()
+                TextInput::make('mnttot')->label('TOTAL') //Montant total (mntxlu*qteact)
                     ->numeric()
                     ->readOnly()
-                    ->minValue(1)
+                    ->minValue(0)
                     ->columnSpan([
                         'md' => 1,
                     ]),
-                TextInput::make('mnttot')->label('TOTAL') //Montant total (mntact*qteact)
-                    ->numeric()
-                    ->readOnly()
-                    ->minValue(1)
-                    ->columnSpan([
-                        'md' => 2,
-                    ]),
-                TextInput::make('tmotact')->label('TM')
+                TextInput::make('mnttmo')->label('TM')
                     ->numeric()
                     ->readOnly()
                     ->minValue(1)
@@ -339,7 +356,7 @@ class SinistreResource extends Resource
                 TextInput::make('mntass')->label('PART HUM.')
                     ->numeric()
                     ->readOnly()
-                    ->minValue(1)
+                    ->minValue(0)
                     ->columnSpan([
                         'md' => 1,
                     ]),
