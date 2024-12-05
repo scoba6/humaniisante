@@ -10,11 +10,16 @@ use App\Models\Commercial;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\SelectColumn;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\FamilleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\FamilleResource\RelationManagers;
+use App\Filament\Resources\FamilleResource\RelationManagers\SinistreRelationManager;
 
 class FamilleResource extends Resource
 {
@@ -26,28 +31,25 @@ class FamilleResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'nomfam';
-
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-
-                Forms\Components\TextInput::make('nomfam')->required()->label('RAISON')->columnSpan('full'),
+                TextInput::make('nomfam')->required()->label('FAMILLE/RAISON')->columnSpan('full'),
                 Select::make('statut')
                     ->options([
                         '1' => 'PARTICULIER',
-                        '2' => 'ENTREPRISE', 
+                        '2' => 'ENTREPRISE',
                     ])
                     ->label('STATUT')
                     ->required()
                     ->native(true),
-                Forms\Components\TextInput::make('numcdg')->label('CONVENTION DE GESTION')
+                TextInput::make('numcdg')->label('CONVENTION DE GESTION')
                     ->readOnly(),
-                Forms\Components\TextInput::make('vilfam')->required()->label('VILLE'),
-                Forms\Components\TextInput::make('payfam')->required()->label('PAYS'),
-                Forms\Components\Textarea::make('adrfam')->required()->label('ADRESSE')->columnSpan('full'),
+                TextInput::make('vilfam')->required()->label('VILLE'),
+                TextInput::make('payfam')->required()->label('PAYS'),
+                Textarea::make('adrfam')->required()->label('ADRESSE')->columnSpan('full'),
                 Select::make('commercial_id')->label('COMMERCIAL')->required()->options(Commercial::all()->pluck('nomcom', 'id'))->columnSpan('full')
-                    //->relationship('commercial', 'id')
                     ->required()
                     ->searchable(),
             ]);
@@ -57,56 +59,49 @@ class FamilleResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nomfam')->label('NOM DE FAMILLE')->searchable()->sortable(),
+                TextColumn::make('nomfam')->label('NOM DE FAMILLE')->searchable()->sortable(),
                 SelectColumn::make('statut')
                 ->options([
                     '1' => 'PARTICULIER',
-                    '2' => 'ENTREPRISE', 
+                    '2' => 'ENTREPRISE',
                 ])
                 ->disabled()
                 ->sortable()
                 ->selectablePlaceholder(false)
                 ->label('STATUT'),
-                Tables\Columns\TextColumn::make('numcdg')->label('N° DE CONVENTION')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('adrfam')->label('ADRESSE')->sortable(),
-                Tables\Columns\TextColumn::make('vilfam')->label('VILLE')->sortable(),
-                Tables\Columns\TextColumn::make('payfam')->label('PAYS')->sortable(),
-                Tables\Columns\TextColumn::make('commercial.nomcom')->label('COMMERCIAL')->sortable(),
-               
+                TextColumn::make('numcdg')->label('N° DE CONVENTION')->searchable()->sortable(),
+                TextColumn::make('adrfam')->label('ADRESSE')->sortable(),
+                TextColumn::make('vilfam')->label('VILLE')->sortable(),
+                TextColumn::make('payfam')->label('PAYS')->sortable(),
+                TextColumn::make('commercial.nomcom')->label('COMMERCIAL')->sortable(),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->label(''),
-                Tables\Actions\DeleteAction::make()->label(''),
-                Tables\Actions\ForceDeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
-            ->groupedBulkActions([
+            ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                 ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
+    public static function getRelations(): array
+    {
+        return [
+            SinistreRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageFamilles::route('/'),
+            'index' => Pages\ListFamilles::route('/'),
+            'create' => Pages\CreateFamille::route('/create'),
+            'edit' => Pages\EditFamille::route('/{record}/edit'),
         ];
-    }    
-    
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 }

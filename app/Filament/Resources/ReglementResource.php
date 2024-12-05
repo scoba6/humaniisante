@@ -163,7 +163,7 @@ class ReglementResource extends Resource
             ->relationship()
             ->schema([
                 Select::make('sinistre_id')->label('SINISTRE')
-                    ->options(Sinistre::query()->where('prestataire_id','=',)->pluck('numsin', 'id'))
+                    ->options(Sinistre::query()->pluck('numsin', 'id')) //:
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(fn ($state, Set $set) => $set('mntass', Sinistre::find($state)?->mntass ?? 0))

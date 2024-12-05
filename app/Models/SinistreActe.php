@@ -17,11 +17,13 @@ class SinistreActe extends Model
     protected $fillable = [
         'sinistre_id', // Sinistre
         'acte_id', //Acte concernée
+        'natact', //Nature Acte
+        'nataff', // ANture Affection
         'qteact',
         'mntact',
         'mntxlu',
         'mnttot',
-        'tmoact',
+        'mnttmo',
         'mntass'
     ];
 

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Closure;
 use Filament\Forms;
 use App\Models\Acte;
 use App\Models\User;
@@ -18,12 +19,14 @@ use Filament\Forms\Form;
 use App\Models\Humpargen;
 use Filament\Tables\Table;
 use App\Models\Prestataire;
+use App\Models\SinistreActe;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
+use Livewire\Component as Livewire;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Model;
@@ -37,9 +40,11 @@ use Filament\Forms\Components\Actions\Action;
 use App\Filament\Resources\SinistreResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SinistreResource\RelationManagers;
+use Filament\Forms\Components\Livewire as ComponentsLivewire;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 use League\CommonMark\Extension\CommonMark\Renderer\Block\ThematicBreakRenderer;
+
 
 class SinistreResource extends Resource
 {
@@ -60,11 +65,7 @@ class SinistreResource extends Resource
             ->schema([
                 Forms\Components\Group::make()
                 ->schema([
-                    Section::make()
-                        ->schema(static::getFormSchema())
-                        ->columns(2),
-
-                    Section::make('Détails de la prestation')
+                    Section::make('Détails Adhérents et Prestation')
                         ->schema(static::getFormSchema('prestation')),
                     Section::make('Détails des actes')
                         ->schema([
@@ -119,7 +120,7 @@ class SinistreResource extends Resource
                         'warning' => '2',
                         'success' => fn ($state) => in_array($state, ['3', '4']),
                     ]),
-                Tables\Columns\TextColumn::make('famille.nomfam')->sortable()->label('FAMILLE'),
+                Tables\Columns\TextColumn::make('famille.nomfam')->sortable()->label('FAMILLE')->searchable(),
                 Tables\Columns\TextColumn::make('membre.nommem')->sortable()->label('MEMBRE'),
                 Tables\Columns\TextColumn::make('mnttmo')->sortable()->label('TM'),
                 Tables\Columns\TextColumn::make('mntass')->sortable()->label('P. HUMANIIS'),
@@ -138,6 +139,7 @@ class SinistreResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
+            ->defaultGroup('famille.nomfam')
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ]);
@@ -169,102 +171,71 @@ class SinistreResource extends Resource
 
     public static function getFormSchema(string $section = null): array
     {
-        if ($section === 'prestation') {
             return [
                 Grid::make()
-                ->schema([
-                    Select::make('prestataire_id')->label('PRESTATAIRE')->columnSpanFull()
-                        ->options(Prestataire::all()->pluck('rsopre', 'id'))
+                    ->schema([
+                        Select::make('famille_id')->options(Famille::all()->pluck('nomfam', 'id'))->label('FAMILLE')
                         ->required()
-                        ->searchable(),
-                    Select::make('typsin')->label('TYPE')
-                        ->options([
-                            '1' => 'AMBULATOIRE',
-                            '2' => 'HOSPITALISATION',
-                            ])
-                        ->required(),
-                        Select::make('nataff_id')->label('NATURE AFFECTION')->options(Humpargen::query()->whereNotIn('id', [1,2,3])->pluck('LIBPAR', 'id'))
-                            ->required()
-                            ->native(false)
-                            //->relationship(name: 'humpagen', titleAttribute: 'LIBPAR')
-                            ->createOptionForm([
-                                TextInput::make('libpar')->label('NATURE')
-                                    ->required()
-                                    ->maxLength(255),
-                                Toggle::make('active')->label('ACTIVE')
-                                    ->required()
-                                    ->default(true)
-                                    ->onColor('success')
-                                    ->offColor('danger'),
-                            ])
-                          ->createOptionUsing(function (Action $action) {
-                            return $action
-                                ->modalHeading('Ajouter une nature d\'affection')
-                                ->modalSubmitActionLabel('Ajouter une nature d\'affection')
-                                ->modalWidth('lg');
-                        }),
-                    Section::make()
-                        ->schema([
-                            TextInput::make('mnttot')->label('MONTANT TOAL')
-                                ->readOnly(),
-                            TextInput::make('mnttmo')->label('TM')
-                                ->readOnly(),
-                            TextInput::make('mntass')->label('PART HUMANIIS')
-                                  ->readOnly(),
-                        ])->columns(3),
-                    DatePicker::make('datsai')->label('DATE DE SAISIE')
-                        ->displayFormat('d/m/Y')
-                        ->maxDate(now())
-                        ->default(now())
-                        ->native(false)
-                        ->readOnly()
-                        ->disabled()
-                        ->required(),
-                    DatePicker::make('datmal')->label('DATE MALADIE')
-                        ->displayFormat('d/m/Y')
-                        ->maxDate(now())
-                        ->native(false)
-                        ->required(),
+                        ->searchable()
+                        ->reactive()
+                        ->afterStateUpdated(fn (callable $set) => $set('membre_id', null)),
 
-                    FileUpload::make('attachements')->label('JUSTIFICATIF')->columnSpan('full')
-                        ->directory('SINISTRES')
-                        ->getUploadedFileNameForStorageUsing(
-                            fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
-                                ->prepend('SIN_'),
-                        )
-                        ->acceptedFileTypes(['application/pdf'])
-                        ->previewable(true)
-                        ->openable()
-                        ->downloadable()
-                        ->visibility('public')
-                ]),
+                    //Dependant select
+                    Select::make('membre_id')->label('MEMBRE')
+                        ->searchable()
+                        ->required()
+                        ->options(function ($get) {
+                            $fam = Famille::find($get('famille_id'))?->id; //Famille
+
+                            if (!$fam) {
+                                //return Option::all()->pluck('libopt', 'id');
+                            }
+                            return Membre::query()
+                                ->where('famille_id', $fam)
+                                ->pluck('nommem', 'id',);
+                        }),
+                        Select::make('prestataire_id')->label('PRESTATAIRE')->columnSpanFull()
+                            ->options(Prestataire::all()->pluck('rsopre', 'id'))
+                            ->required()
+                            ->searchable(),
+                        Section::make()
+                            ->schema([
+                                TextInput::make('mnttot')->label('MONTANT TOTAL')
+                                    ->readOnly(),
+                                TextInput::make('mnttmo')->label('TM')
+                                    ->readOnly(),
+                                TextInput::make('mntass')->label('PART HUMANIIS')
+                                    ->readOnly(),
+                            ])->columns(3),
+                        DatePicker::make('datsai')->label('DATE DE SAISIE')
+                            ->displayFormat('d/m/Y')
+                            ->maxDate(now())
+                            ->default(now())
+                            ->native(false)
+                            ->readOnly()
+                            ->disabled()
+                            ->required(),
+                        DatePicker::make('datmal')->label('DATE MALADIE')
+                            ->displayFormat('d/m/Y')
+                            ->maxDate(now())
+                            ->native(false)
+                            ->required(),
+
+                        FileUpload::make('attachements')->label('JUSTIFICATIF')->columnSpan('full')
+                            ->directory('SINISTRES')
+                            ->getUploadedFileNameForStorageUsing(
+                                fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
+                                    ->prepend('SIN_'),
+                            )
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->previewable(true)
+                            ->openable()
+                            ->downloadable()
+                            ->visibility('public')
+                    ]),
 
             ];
-        }
 
-        return [
-            Select::make('famille_id')->options(Famille::all()->pluck('nomfam', 'id'))->label('FAMILLE')
-                ->required()
-                ->searchable()
-                ->reactive()
-                ->afterStateUpdated(fn (callable $set) => $set('membre_id', null)),
-
-            //Dependant select
-            Select::make('membre_id')->label('MEMBRE')
-                ->searchable()
-                ->required()
-                ->options(function ($get) {
-                    $fam = Famille::find($get('famille_id'))?->id; //Famille
-
-                    if (!$fam) {
-                        //return Option::all()->pluck('libopt', 'id');
-                    }
-                    return Membre::query()
-                        ->where('famille_id', $fam)
-                        ->pluck('nommem', 'id',);
-                }),
-
-        ];
     }
 
     public static function getItemsRepeater(): Repeater
@@ -278,38 +249,69 @@ class SinistreResource extends Resource
                     ->searchable()
                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                     ->columnSpan([
-                        'md' => 4,
+                        'md' => 6,
+                    ]),
+                Select::make('natact')->label('TYPE')
+                    ->options([
+                        '1' => 'AMBULATOIRE',
+                        '2' => 'HOSPITALISATION',
+                        ])
+                    ->required()
+                    ->columnSpan([
+                        'md' => 2,
+                    ]),
+                Select::make('nataff')->label('AFFECTION')->options(Humpargen::query()->whereNotIn('id', [1,2,3])->pluck('LIBPAR', 'id'))
+                    ->required()
+                    ->native(false)
+                    ->createOptionForm([
+                        TextInput::make('libpar')->label('NATURE')
+                            ->required()
+                            ->maxLength(255),
+                        Toggle::make('active')->label('ACTIVE')
+                            ->required()
+                            ->default(true)
+                            ->onColor('success')
+                            ->offColor('danger'),
+                    ])->createOptionUsing(function (Action $action) {
+                        return $action
+                            ->modalHeading('Ajouter une nature d\'affection')
+                            ->modalSubmitActionLabel('Ajouter une nature d\'affection')
+                            ->modalWidth('lg');
+                    }) ->columnSpan([
+                        'md' => 2,
                     ]),
                 TextInput::make('mntact')->label('PRIX U.') //Montant unitaire de l'acte
                     ->required()
                     ->numeric()
                     ->minValue(0)
                     ->columnSpan([
-                        'md' => 1,
+                        'md' => 2,
                     ]),
-                TextInput::make('mntxlu')->label('MNT EXCLU.') //Montant exclu
-                    ->numeric()
-                    ->minValue(0),
-
 
                 TextInput::make('qteact')->label('QTE')
                     ->required()
                     ->numeric()
                     ->minValue(1)
+                    ,
+
+                TextInput::make('mntxlu')->label('EXCLUSION') //Montant exclu
+                    ->numeric()
+                    ->minValue(0)
                     ->reactive()
-                    ->afterStateUpdated(function (Set $set, Get $get) {
+                    ->afterStateUpdated(function ($state, Set $set, Get $get, SinistreActe $sa ) {
 
-                        //$mbre = $get('membre_id');
-                        $sini = $get('sinistre_id');
-                        $mbre = Sinistre::find($sini)?->membre_id;
-
-                        $type = $get('typsin'); //Type de sinistre
                         $qtea = $get('qteact');
                         $mnac = $get('mntact'); // Montant de l'acte
                         $mnto = $get('mnttot');
                         $mntx = $get('mntxlu'); //Exclusion
-                        $frml = Membre::find($mbre)?->formule_id; // La formule du membre
 
+                        $sini =$get('../../sinistre_id'); //Sinistre::find($state)?->sinistre_id; // Le sinistre
+                        $memb = Membre::find($state)?->membre_id; // Le membre
+
+                        //dd($sini);
+
+                        $frml = Membre::find($memb)?->formule_id; // La formule du membre
+                        $type = $get('natact'); //Type de sinistre
                         switch ($type) {
                             case 1:
                                 $taux = Formule::find($frml)?->tauamb; // Taux de couverture en fonction du type de sinistre
@@ -320,11 +322,8 @@ class SinistreResource extends Resource
                             default:
                                 $taux = Formule::find($frml)?->tauamb; // par défaut on est jr en ambulatoire
                         }
-                        //Montant - Exclusion
-                        $reel = $mnac - $mntx;
-
-                        //Total
-                        $ttal = $reel * $qtea;
+                        //Total - exclusion
+                        $ttal = $mnac * $qtea -  $mntx;
 
                         //Part HUMANIIS
                         $parh =  ($ttal * $taux)/100;
@@ -333,8 +332,8 @@ class SinistreResource extends Resource
                         $timo = $ttal - $parh;
 
                         $set('mnttot',  $ttal);
-                        $set('mnttmo',  $timo);
-                        $set('mntass',  $parh);
+                        //$set('mntass',  $parh);
+                       // $set('mnttmo',  $timo);
                     })
                     ->columnSpan([
                         'md' => 1,
@@ -344,24 +343,25 @@ class SinistreResource extends Resource
                     ->readOnly()
                     ->minValue(0)
                     ->columnSpan([
-                        'md' => 1,
-                    ]),
-                TextInput::make('mnttmo')->label('TM')
-                    ->numeric()
-                    ->readOnly()
-                    ->minValue(1)
-                    ->columnSpan([
-                        'md' => 1,
+                        'md' => 2,
                     ]),
                 TextInput::make('mntass')->label('PART HUM.')
                     ->numeric()
-                    ->readOnly()
+                   // ->readOnly()
+                    ->minValue(0)
+                    ->columnSpan([
+                        'md' => 2,
+                    ]),
+                TextInput::make('mnttmo')->label('TM')
+                    ->numeric()
+                    //->readOnly()
                     ->minValue(0)
                     ->columnSpan([
                         'md' => 1,
                     ]),
             ])->columns([
                 'md' => 10,
-            ])->addActionLabel('Ajouter un acte');
+            ])
+            ->addActionLabel('Ajouter un acte');
     }
 }

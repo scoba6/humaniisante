@@ -12,6 +12,7 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -19,6 +20,8 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
+use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -28,12 +31,17 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->spa()
             ->maxContentWidth(MaxWidth::Full)
             ->login()
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->plugins([
+                FilamentShieldPlugin::make(),
+                FilamentSpatieLaravelHealthPlugin::make(),
+                EnvironmentIndicatorPlugin::make(),
+            ])
+
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -45,6 +53,7 @@ class AdminPanelProvider extends PanelProvider
                 //Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
+               // Authenticate::class,
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
@@ -57,6 +66,21 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+           ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('ADHESIONS')
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label('SINISTRES')
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label('PARAMETRES')
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label('ADMINISTRATION')
+                    ->collapsed(true),
             ]);
     }
+
 }

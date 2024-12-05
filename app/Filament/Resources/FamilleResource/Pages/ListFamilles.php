@@ -4,9 +4,9 @@ namespace App\Filament\Resources\FamilleResource\Pages;
 
 use App\Filament\Resources\FamilleResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\ListRecords;
 
-class ManageFamilles extends ManageRecords
+class ListFamilles extends ListRecords
 {
     protected static string $resource = FamilleResource::class;
 

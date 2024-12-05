@@ -28,8 +28,7 @@ class Sinistre extends Model
         'numsin',
         'datsai',
         'datmal',
-        'natact', //Nature Acte
-        'nataff', // ANture Affection
+    
         'mnttot', // Montant total
         'mnbase',
         'mnttmo', // Ticket moderateur

@@ -6,6 +6,7 @@ use Wildside\Userstamps\Userstamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -34,10 +35,10 @@ class Famille extends Model
 
             $pre = 'CDG-';
             $randomNumber = random_int(100000, 999999); // génération aléatoir entre ces 2 valeurs
-           
+
             //Generation du N° de CDG //Convention de gestion
             $model->numcdg = ($pre.$randomNumber.'H');
-            
+
             $model->save();
         });
     }
@@ -60,5 +61,15 @@ class Famille extends Model
     public function commercial(): BelongsTo
     {
         return $this->belongsTo(Commercial::class, 'commercial_id', 'id');
+    }
+
+    /**
+     * Get all of the sinistre for the Famille
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function sinistre(): HasMany
+    {
+        return $this->hasMany(Sinistre::class);
     }
 }

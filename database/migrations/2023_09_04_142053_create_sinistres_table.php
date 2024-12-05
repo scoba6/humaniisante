@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignId('prestataire_id')->constrained('prestataires')->default(0);
             $table->foreignId('membre_id')->constrained('familles_membres');
             $table->foreignId('acte_id')->constrained('actes');
-            $table->foreignId('nataff_id')->constrained('humpargen');
             $table->string('numsin', 100)->nullable()->default('SH');
             $table->dateTime('datsai')->nullable()->default(now());
             $table->dateTime('datmal')->nullable()->default(now());

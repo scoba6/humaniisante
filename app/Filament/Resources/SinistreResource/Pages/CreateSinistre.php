@@ -37,12 +37,12 @@ class CreateSinistre extends CreateRecord
     protected function getSteps(): array
     {
         return [
-            Step::make('Details assuré')
+           /*  Step::make('Details assuré')
                 ->schema([
                     Section::make()->schema(SinistreResource::getFormSchema())->columns(),
-                ]),
+                ]), */
 
-            Step::make('Détails prestations')
+            Step::make('Détails Adhérent et Prestations')
                 ->schema([
                     Section::make()->schema(SinistreResource::getFormSchema('prestation')),
                 ]),
