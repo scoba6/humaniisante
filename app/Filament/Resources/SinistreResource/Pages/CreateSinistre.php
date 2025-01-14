@@ -22,6 +22,7 @@ class CreateSinistre extends CreateRecord
     {
         $sinistre = $this->record;
 
+
         Notification::make()
             ->title('Nouveau Sinistre')
             ->icon('heroicon-o-shopping-bag')
@@ -31,16 +32,15 @@ class CreateSinistre extends CreateRecord
                     ->url(SinistreResource::getUrl('edit', ['record' => $sinistre])),
             ])
             ->sendToDatabase(auth()->user());
+
+            //Maj du montant du sinistre
+            //$this->getMontantSinistre();
     }
 
 
     protected function getSteps(): array
     {
         return [
-           /*  Step::make('Details assuré')
-                ->schema([
-                    Section::make()->schema(SinistreResource::getFormSchema())->columns(),
-                ]), */
 
             Step::make('Détails Adhérent et Prestations')
                 ->schema([
@@ -54,4 +54,6 @@ class CreateSinistre extends CreateRecord
                 ]),
         ];
     }
+
+
 }

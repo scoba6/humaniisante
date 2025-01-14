@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\SinStatut;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Wildside\Userstamps\Userstamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,7 +29,7 @@ class Sinistre extends Model
         'numsin',
         'datsai',
         'datmal',
-    
+
         'mnttot', // Montant total
         'mnbase',
         'mnttmo', // Ticket moderateur
@@ -61,7 +62,31 @@ class Sinistre extends Model
         });
     }
 
+   /*  public function getMontantSinistre():int {
 
+        //Initialisation du montant du sinistr 0
+         $mntsin = 0;
+         //Récupération des actes liés au sinistre
+         $actes = SinistreActe::where([['sinistre_id', $this->id]])->get();
+
+
+
+         //Pour chaque item de la facture, on fait le cumul du montant dans le montant total no taxable
+         foreach ($actes  as $acte) {
+
+            $mntsin += (round($acte->mnttot));
+
+         }
+         dd($mntsin);
+         //Mise à jour du montant HT non taxable dans la facture
+                  DB::table('sinistres')
+                     ->where('id', '=', $this->id)
+                     ->update(['mnttot' => $mntsin]);
+
+         return  $mntsin;
+     }
+
+ */
 
 
     /**

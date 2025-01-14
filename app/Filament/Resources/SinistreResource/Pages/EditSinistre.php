@@ -18,4 +18,5 @@ class EditSinistre extends EditRecord
             Actions\RestoreAction::make(),
         ];
     }
+
 }

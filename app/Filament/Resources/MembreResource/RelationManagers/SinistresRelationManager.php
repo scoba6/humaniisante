@@ -3,12 +3,13 @@
 namespace App\Filament\Resources\MembreResource\RelationManagers;
 
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class SinistresRelationManager extends RelationManager
 {
@@ -21,8 +22,8 @@ class SinistresRelationManager extends RelationManager
              /*    Forms\Components\TextInput::make('numsin')->label('N° SIN')
                     ->required()
                     ->maxLength(255), */
-                
-                
+
+
             ]);
     }
 
@@ -40,14 +41,17 @@ class SinistresRelationManager extends RelationManager
                         'warning' => '2',
                         'success' => fn ($state) => in_array($state, ['3', '4']),
                     ]),
-                //Tables\Columns\TextColumn::make('famille.nomfam')->sortable()->label('FAMILLE'),
-                //Tables\Columns\TextColumn::make('membre.nommem')->sortable()->label('MEMBRE'),
-                Tables\Columns\TextColumn::make('mnttmo')->sortable()->label('TM')
+                TextColumn::make('mnttot')->sortable()->label('TOTAL')
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
                             ->money('XAF'),
                     ]),
-                Tables\Columns\TextColumn::make('mntass')->sortable()->label('P. HUMANIIS')
+                TextColumn::make('mnttmo')->sortable()->label('TM')
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('XAF'),
+                    ]),
+                TextColumn::make('mntass')->sortable()->label('P. HUMANIIS')
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
                             ->money('XAF'),

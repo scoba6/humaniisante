@@ -20,10 +20,13 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Actions\BulkActionGroup;
@@ -57,7 +60,7 @@ class MembreResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('famille_id')->label('FAMILLE')->required()->options(Famille::all()->pluck('nomfam', 'id'))->columnSpan('full')->searchable(),
+                Select::make('famille_id')->label('FAMILLE')->required()->options(Famille::all()->pluck('nomfam','id'))->columnSpan('full')->searchable(),
                 TextInput::make('nommem')->required()->label('NOM PRENOM'), //->columnSpan('full'),
                 Select::make('qualite_id')->label('QUALITE')->required()->options(Qualite::all()->pluck('libqlt', 'id')),
                 DatePicker::make('datnai')->label('DATE DE NAISSANCE')->displayFormat('d/m/Y')->maxDate(now())->required()
@@ -109,8 +112,12 @@ class MembreResource extends Resource
                     }),
 
                 TextInput::make('matmem')->label('MATRICULE')->disabled(),
-                DatePicker::make('valfrm')->label('VALIDITE FORMULE')->columnSpan('full')
+                DatePicker::make('valfrm')->label('VALIDITE FORMULE')
                     ->required()
+                    ->displayFormat('d/m/Y')
+                    ->closeOnDateSelection()
+                    ->native(false),
+                DatePicker::make('datret')->label('RETIRE LE')
                     ->displayFormat('d/m/Y')
                     ->closeOnDateSelection()
                     ->native(false),
@@ -122,6 +129,7 @@ class MembreResource extends Resource
                     ])
                     ->columns(3),
                 Textarea::make('commem')->label('COMMENTAIRES')->columnSpan('full'),
+
             ]);
     }
 
@@ -129,14 +137,19 @@ class MembreResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('famille.nomfam')->sortable()->label('FAMILLE')->searchable(),
-                Tables\Columns\TextColumn::make('qualite.libqlt')->sortable()->label('QUALITE')->searchable(),
-                Tables\Columns\TextColumn::make('formule.libfrm')->sortable()->label('FORMULE'),
-                Tables\Columns\TextColumn::make('nommem')->sortable()->label('NOM PRENOM')->searchable(),
-                Tables\Columns\TextColumn::make('matmem')->sortable()->label('MATRICULE'),
-                Tables\Columns\TextColumn::make('datnai')->sortable()->label('DATE DE NAISSANCE')->datetime('d/m/Y'),
-                Tables\Columns\TextColumn::make('agemem')->sortable()->label('AGE'),
-                Tables\Columns\TextColumn::make('groupe.libsxg')->sortable()->label('SEXE'),
+                TextColumn::make('famille.nomfam')->sortable()->label('FAMILLE')->searchable(),
+                TextColumn::make('qualite.libqlt')->sortable()->label('QUALITE')->searchable(),
+                TextColumn::make('formule.libfrm')->sortable()->label('FORMULE'),
+                TextColumn::make('nommem')->sortable()->label('NOM PRENOM')->searchable(),
+                TextColumn::make('famille.numcdg')->sortable()->label('CDG')->searchable(),
+                TextColumn::make('matmem')->sortable()->label('MATRICULE')->searchable(),
+                TextColumn::make('datnai')->sortable()->label('DATE DE NAISSANCE')->datetime('d/m/Y'),
+                TextColumn::make('agemem')->sortable()->label('AGE'),
+                TextColumn::make('groupe.libsxg')->sortable()->label('SEXE'),
+                ToggleColumn::make('active')->label('ACTIF')->sortable()
+                    ->onColor('success')
+                    ->offColor('danger'),
+                //IconColumn::make('active')->label('ACTIF')->boolean()
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -148,7 +161,7 @@ class MembreResource extends Resource
                     ->icon('heroicon-m-qr-code')
                     ->iconButton(),
                 Tables\Actions\EditAction::make()->label(''),
-               
+
 
             ])
             ->groupedBulkActions([
@@ -190,5 +203,5 @@ class MembreResource extends Resource
             ]);
     }
 
-    
+
 }

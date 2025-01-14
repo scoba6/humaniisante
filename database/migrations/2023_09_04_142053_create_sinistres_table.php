@@ -23,10 +23,10 @@ return new class extends Migration
             $table->dateTime('datmal')->nullable()->default(now());
             $table->string('natact', 100)->nullable()->default('text');
             $table->string('nataff', 100)->nullable()->default('text');
-            $table->integer('mnttot')->unsigned()->nullable()->default(12); // Montant total
-            $table->integer('mnbase')->unsigned()->nullable()->default(12); //Base humaniis
-            $table->integer('mnttmo')->unsigned()->nullable()->default(12); // TM
-            $table->integer('mntass')->unsigned()->nullable()->default(12); //Part humaniis
+            $table->integer('mnttot')->unsigned()->nullable()->default(0); // Montant total
+            $table->integer('mnbase')->unsigned()->nullable()->default(0); //Base humaniis
+            $table->integer('mnttmo')->unsigned()->nullable()->default(0); // TM
+            $table->integer('mntass')->unsigned()->nullable()->default(0); //Part humaniis
             $table->string('status')->default(SinStatut::A);
             $table->string('attachements', 100)->nullable()->default('text');
             $table->string('testdbal', 100)->nullable()->default('text');

@@ -21,12 +21,13 @@ use Filament\Tables\Table;
 use App\Models\Prestataire;
 use App\Models\SinistreActe;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Livewire\Component as Livewire;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
-use Livewire\Component as Livewire;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Model;
@@ -122,6 +123,7 @@ class SinistreResource extends Resource
                     ]),
                 Tables\Columns\TextColumn::make('famille.nomfam')->sortable()->label('FAMILLE')->searchable(),
                 Tables\Columns\TextColumn::make('membre.nommem')->sortable()->label('MEMBRE'),
+                Tables\Columns\TextColumn::make('mnttot')->sortable()->label('TOTAL'),
                 Tables\Columns\TextColumn::make('mnttmo')->sortable()->label('TM'),
                 Tables\Columns\TextColumn::make('mntass')->sortable()->label('P. HUMANIIS'),
             ])
@@ -362,6 +364,31 @@ class SinistreResource extends Resource
             ])->columns([
                 'md' => 10,
             ])
+            ->after(function (Sinistre $sinistre){
+
+                //Initialisation du montant, PM et TM du sinistr 0
+                $mntsin = 0;
+                $mntphm = 0;
+                $mnttmc = 0;
+
+                //Récupération des actes liés au sinistre
+                $actes = SinistreActe::where([['sinistre_id', $sinistre->id]])->get();
+
+                //Pour chaque acte du sinitre, on fait le cumul du montant des différents éléments
+                foreach ($actes  as $acte) {
+
+                    $mntsin += (round($acte->mnttot)); // Total
+                    $mntphm += (round($acte->mntass)); // Part Humaniis
+                    $mnttmc += (round($acte->mnttmo)); // TM
+                }
+
+                //Mise à jour du sinistre avec les différents montant
+                        DB::table('sinistres')
+                            ->where('id', '=', $sinistre->id)
+                            ->update(['mnttot' => $mntsin,
+                                              'mntass' => $mntphm,
+                                              'mnttmo' => $mnttmc]);
+            })
             ->addActionLabel('Ajouter un acte');
     }
 }

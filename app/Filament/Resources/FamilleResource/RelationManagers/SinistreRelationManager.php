@@ -42,7 +42,12 @@ class SinistreRelationManager extends RelationManager
                     ]),
                 TextColumn::make('famille.nomfam')->sortable()->label('FAMILLE'),
                 TextColumn::make('membre.nommem')->sortable()->label('MEMBRE'),
-                
+                TextColumn::make('mnttot')->sortable()->label('TOTAL')
+                ->summarize([
+                    Tables\Columns\Summarizers\Sum::make()
+                        ->money('XAF'),
+                ]),
+
                 TextColumn::make('mnttmo')->sortable()->label('TM')
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
@@ -64,10 +69,13 @@ class SinistreRelationManager extends RelationManager
             ->actions([
                 //Tables\Actions\EditAction::make(),
                 //Tables\Actions\DeleteAction::make(),
+                //ExportBulkAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    ExportBulkAction::make()
+
                 ]),
             ]);
     }

@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PrestataireResource\Pages;
 use App\Filament\Resources\PrestataireResource\RelationManagers;
+use App\Models\Localite;
+use Filament\Forms\Components\Select;
 
 class PrestataireResource extends Resource
 {
@@ -34,6 +36,7 @@ class PrestataireResource extends Resource
                 Textarea::make('adrpre')->required()->label('ADRESSE')->columnSpan('full'),
                 TextInput::make('telpre')->required()->label('TELEPHONE'),
                 TextInput::make('maipre')->email()->label('E-MAIL'),
+                Select::make('locpre')->label('LOCALITE')->options(Localite::all()->pluck('libloc', 'id'))->searchable(),
                 Radio::make('natpre')->label('TYPE DE PRESTATIONS')
                     ->options([
                         '1' => 'PUBLIQUE',
@@ -50,7 +53,8 @@ class PrestataireResource extends Resource
                 Tables\Columns\TextColumn::make('rsopre')->label('RAISON SOCIALE')->sortable(),
                 Tables\Columns\TextColumn::make('adrpre')->label('ADRESSE')->sortable(),
                 Tables\Columns\TextColumn::make('telpre')->label('TELEPHONE')->sortable(),
-                Tables\Columns\TextColumn::make('maipre')->label('MAIL')->sortable()
+                Tables\Columns\TextColumn::make('maipre')->label('MAIL')->sortable(),
+                Tables\Columns\TextColumn::make('localite.libloc')->label('LOCALITE')->sortable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -72,14 +76,14 @@ class PrestataireResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ManagePrestataires::route('/'),
         ];
-    }    
-    
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

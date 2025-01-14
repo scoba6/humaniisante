@@ -10,6 +10,8 @@ class ListSinistres extends ListRecords
 {
     protected static string $resource = SinistreResource::class;
 
+    protected static ?string $title = 'Sinistres saisies';
+
     protected function getHeaderActions(): array
     {
         return [
