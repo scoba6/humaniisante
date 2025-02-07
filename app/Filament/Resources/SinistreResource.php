@@ -37,9 +37,11 @@ use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Forms\Components\Actions\Action;
 use App\Filament\Resources\SinistreResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\SinistreResource\RelationManagers;
 use Filament\Forms\Components\Livewire as ComponentsLivewire;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -123,9 +125,12 @@ class SinistreResource extends Resource
                     ]),
                 Tables\Columns\TextColumn::make('famille.nomfam')->sortable()->label('FAMILLE')->searchable(),
                 Tables\Columns\TextColumn::make('membre.nommem')->sortable()->label('MEMBRE'),
-                Tables\Columns\TextColumn::make('mnttot')->sortable()->label('TOTAL'),
-                Tables\Columns\TextColumn::make('mnttmo')->sortable()->label('TM'),
-                Tables\Columns\TextColumn::make('mntass')->sortable()->label('P. HUMANIIS'),
+                Tables\Columns\TextColumn::make('mnttot')->sortable()->label('TOTAL')
+                     ->summarize(Sum::make()),
+                Tables\Columns\TextColumn::make('mnttmo')->sortable()->label('TM')
+                     ->summarize(Sum::make()),
+                Tables\Columns\TextColumn::make('mntass')->sortable()->label('P. HUMANIIS')
+                     ->summarize(Sum::make()),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -139,6 +144,7 @@ class SinistreResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
+                    ExportBulkAction::make()
                 ]),
             ])
             ->defaultGroup('famille.nomfam')
