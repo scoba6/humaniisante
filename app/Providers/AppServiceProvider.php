@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Filament::serving(function () {
+       /*  Filament::serving(function () {
             Filament::registerNavigationGroups([
                 NavigationGroup::make()
                     ->label('ADHESIONS')
@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
                     ->collapsed(true),
 
             ]);
-        });
+        }); */
 
         Health::checks([
             OptimizedAppCheck::new(),

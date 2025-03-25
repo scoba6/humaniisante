@@ -8,6 +8,7 @@ use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\MaxWidth;
+use EightyNine\Reports\ReportsPlugin;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
@@ -41,6 +42,7 @@ class AdminPanelProvider extends PanelProvider
                 FilamentShieldPlugin::make(),
                 FilamentSpatieLaravelHealthPlugin::make(),
                 EnvironmentIndicatorPlugin::make(),
+                ReportsPlugin::make(),
             ])
 
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
@@ -74,6 +76,9 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsed(true),
                 NavigationGroup::make()
                     ->label('SINISTRES')
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label('REPORTING')
                     ->collapsed(true),
                 NavigationGroup::make()
                     ->label('PARAMETRES')

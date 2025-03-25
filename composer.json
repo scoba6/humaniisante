@@ -14,6 +14,7 @@
         "bezhansalleh/filament-shield": "^3.3",
         "calcinai/php-imagick": "^0.1.2",
         "doctrine/dbal": "^3.6",
+        "eightynine/filament-reports": "^3.0",
         "filament/filament": "^3.2",
         "filament/upgrade": "^3.2",
         "flowframe/laravel-trend": "^0.1.5",
